@@ -36,4 +36,5 @@ public abstract class AbstractService<T> {
     public <ID> void deleteById(final ID id) {
         dao.removeById(entityClass, id);
     }
+
 }

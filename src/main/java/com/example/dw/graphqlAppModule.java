@@ -3,6 +3,8 @@ package com.example.dw;
 import com.example.dw.config.Config;
 import com.example.dw.dao.Dao;
 import com.example.dw.dao.DaoImpl;
+import com.example.dw.datafetchers.GraphQLDataFetcher;
+import com.example.dw.provider.GraphQLProvider;
 import com.example.dw.service.BookService;
 import com.example.dw.service.AuthorService;
 import com.google.inject.AbstractModule;
@@ -26,5 +28,7 @@ public class graphqlAppModule extends AbstractModule {
         bind(Dao.class).to(DaoImpl.class).in(Singleton.class);
         bind(BookService.class).in(Singleton.class);
         bind(AuthorService.class).in(Singleton.class);
+        bind(GraphQLDataFetcher.class).in(Singleton.class);
+        bind(GraphQLProvider.class).in(Singleton.class);
     }
 }

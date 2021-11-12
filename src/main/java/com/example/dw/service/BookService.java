@@ -16,4 +16,5 @@ public class BookService extends AbstractService<Book> {
             return new ArrayList<>(0);
         }
     }
+
 }

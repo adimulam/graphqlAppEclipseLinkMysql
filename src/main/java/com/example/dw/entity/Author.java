@@ -4,6 +4,9 @@ import javax.persistence.*;
 
 @Table(name = "author")
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "Author.findByIds", query = "SELECT a FROM com.example.dw.entity.Author a WHERE a.id IN :ids")
+})
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

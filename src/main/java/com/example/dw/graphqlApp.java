@@ -2,6 +2,7 @@ package com.example.dw;
 
 import com.example.dw.config.Config;
 import com.example.dw.config.DbConfig;
+import com.example.dw.controller.GraphQLController;
 import com.example.dw.resource.HomeResource;
 import com.example.dw.resource.BookResource;
 import com.example.dw.resource.AuthorResource;
@@ -32,6 +33,7 @@ public class graphqlApp extends Application<Config> {
         env.jersey().register(injector.getInstance(HomeResource.class));
         env.jersey().register(injector.getInstance(BookResource.class));
         env.jersey().register(injector.getInstance(AuthorResource.class));
+        env.jersey().register(injector.getInstance(GraphQLController.class));
     }
 
     private JpaPersistModule createJpaModule(final DbConfig dbConfig) {

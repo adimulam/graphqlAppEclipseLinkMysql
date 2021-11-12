@@ -19,6 +19,7 @@
         <dropwizard.version>2.0.25</dropwizard.version>
         <guice.version>5.0.1</guice.version>
         <eclipselink.version>2.7.9</eclipselink.version>
+        <graphql.version>17.3</graphql.version>
     </properties>
 
     <dependencies>
@@ -63,6 +64,17 @@
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
             <version>2.2</version>
+        </dependency>
+        <!-- graphql-java -->
+        <dependency>
+            <groupId>com.graphql-java</groupId>
+            <artifactId>graphql-java</artifactId>
+            <version>${graphql.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>2.3</version>
         </dependency>
     </dependencies>
 

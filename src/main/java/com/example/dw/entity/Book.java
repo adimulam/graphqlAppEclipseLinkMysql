@@ -1,7 +1,12 @@
 package com.example.dw.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
+@Setter
+@Getter
 @Table(name = "book")
 @Entity
 public class Book {
@@ -10,9 +15,8 @@ public class Book {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "authorId")
-    private Author authorId;
+    @Column(name = "authorId")
+    private Long authorId;
 
     @Column(name = "description")
     private String description;
@@ -20,35 +24,7 @@ public class Book {
     @Column(name = "title", nullable = false)
     private String title;
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Author getAuthorId() {
-        return authorId;
-    }
-
-    public void setAuthorId(Author authorId) {
-        this.authorId = authorId;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @ManyToOne
+    @JoinColumn(name = "authorId", insertable = false, updatable = false)
+    private Author author;
 }
