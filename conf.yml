@@ -1,0 +1,20 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+
+logging:
+  level: INFO
+  loggers:
+    com.example.dw: DEBUG
+  appenders:
+    - type: console
+
+dbConfig:
+  driver: com.mysql.jdbc.Driver
+  username: root
+  password: Welcome_123
+  url: jdbc:mysql://localhost:3306/testdb
