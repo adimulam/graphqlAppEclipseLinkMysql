@@ -33,7 +33,7 @@ There are 2 data fetchers to get author data, one uses data loader and the other
 A persistence.xml config is added in resources and has required config to create tables (if not present).\
 
 6. To start with: \
-Build the project:\
+Build the project:
 ```
 mvn clean install
 ```
@@ -48,21 +48,16 @@ Then create author and book resources.
 POST http://localhost:8080/author
 
 Sample Payload:
-
-```
-
 {
     "name": "Bob",
     "age": 26
 }
 ```
 
-And
 ```
 POST http://localhost:8080/book
 
 Sample Payload:
-```
 {
     "description": "Programming in C",
     "title": "C",
@@ -70,9 +65,9 @@ Sample Payload:
 }
 ```
 
-Add such multiple objects.\
+Add such multiple objects.
 
-7. GraphQL query without data loader:\
+7. GraphQL query without data loader:
 ```
 {
   books {
@@ -100,7 +95,7 @@ Using Registered Data Loaders
         bind => [1 parameter bound]
 ```
 
-GraphQL instance with dataloaders registered:\
+GraphQL instance with dataloaders registered:
 ```
 Body: {"operationName":null,"variables":{},"query":"{\n  books {\n    title\n    author {\n      name\n    }\n  }\n}\n"}
 Registered data loaders
