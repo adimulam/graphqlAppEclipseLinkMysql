@@ -24,7 +24,6 @@ public class Book {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @ManyToOne
-    @JoinColumn(name = "authorId", insertable = false, updatable = false)
-    private Author author;
+    @ManyToOne()
+    private Author auth;
 }

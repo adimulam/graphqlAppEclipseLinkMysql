@@ -1,6 +1,7 @@
 package com.example.dw.entity;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Table(name = "author")
 @Entity
@@ -42,4 +43,7 @@ public class Author {
     public void setId(Long id) {
         this.id = id;
     }
+
+    @OneToMany(mappedBy = "auth")
+    private List<Book> books;
 }
