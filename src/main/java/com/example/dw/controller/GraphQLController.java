@@ -1,6 +1,7 @@
 package com.example.dw.controller;
 
 import com.example.dw.provider.GraphQLProvider;
+import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -14,11 +15,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
 import java.util.Optional;
 
 @Path("/graphql")
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class GraphQLController {
 
     @Inject
@@ -32,19 +33,10 @@ public class GraphQLController {
             @HeaderParam(HttpHeaders.CONTENT_TYPE) Optional<String> contentType,
             @Context UriInfo uriInfo,
             String body
-    ) throws IOException, ParseException {
-        System.out.println("Body: " + body);
-        graphQLProvider.init();
-        /*
-        ExecutionInput executionInput = ExecutionInput.newExecutionInput().query("query {bookById(id: \"book-1\") {id name}}")
-                .build();
-        ExecutionResult result = graphQLProvider.graphQL().execute(executionInput);
-        System.out.println(result.getData().toString());
-        return result.getData();
-         */
+    ) throws ParseException {
+        log.info("Received GraphQL Query: ", body);
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(body);
-        //return graphQLProvider.graphQL().execute(json.getAsString("query"));
         return graphQLProvider.invoke(json.getAsString("query"));
     }
 }

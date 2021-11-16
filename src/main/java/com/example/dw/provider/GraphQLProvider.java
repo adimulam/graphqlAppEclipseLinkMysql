@@ -9,16 +9,16 @@ import graphql.ExecutionInput;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.*;
+import lombok.extern.slf4j.Slf4j;
 import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderFactory;
 import org.dataloader.DataLoaderRegistry;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
 
-
+@Slf4j
 public class GraphQLProvider {
 
     @Inject
@@ -31,7 +31,7 @@ public class GraphQLProvider {
     public GraphQLProvider() {
     }
 
-    @PostConstruct
+    @Inject
     public void init() throws IOException {
         URL url = Resources.getResource("schema.graphqls");
         String sdl = Resources.toString(url, Charsets.UTF_8);
@@ -45,7 +45,7 @@ public class GraphQLProvider {
         DataLoader<Long, Author> authorDataLoader = DataLoaderFactory
                 .newDataLoader(graphQLDataFetchers.authorBatchLoader());
         dataLoaderRegistry.register("authors", authorDataLoader);
-        System.out.println("Registered data loaders");
+        log.info("Registered data loaders");
     }
 
     private GraphQLSchema buildSchema(String sdl) {
@@ -72,11 +72,11 @@ public class GraphQLProvider {
     }
 
     public Object invoke(String query) {
-        System.out.println("Invoking GraphQL Query");
+        log.info("Invoking GraphQL Query");
         if (dataLoaderRegistry != null) {
-            System.out.println("Using Registered Data Loaders");
+            log.info("Using Registered Data Loaders");
         } else {
-            System.out.println("No Registered Data Loaders Found!!");
+            log.info("No Registered Data Loaders Found!!");
         }
         ExecutionInput executionInput = ExecutionInput.newExecutionInput()
                 .query(query)
