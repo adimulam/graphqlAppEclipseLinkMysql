@@ -151,3 +151,40 @@ Output:
   "dataPresent": true
 }
 ```
+
+9. Query with basic pagination:
+```
+query {
+  booksWithFilter(filters: {
+    price: {
+      operator:"gt",
+      value: "50"
+    }},
+    pagination:{
+      limit:1,
+      offset:0
+    })
+ {
+    id
+    title
+    price
+  }
+}
+```
+
+Output:
+```
+{
+  "errors": [],
+  "data": {
+    "booksWithFilter": [
+      {
+        "id": "1",
+        "title": "C Programming",
+        "price": 200
+      }
+    ]
+  },
+  "dataPresent": true
+}
+```
