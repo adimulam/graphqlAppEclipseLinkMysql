@@ -5,21 +5,21 @@ Framework - Dropwizard\
 JPA - EclipseLink\
 DB - MySql\
 DI - Guice\
-GraphQL - graphql-java\
+GraphQL - graphql-java
 
 1. Entities\
 Basic Entities Author and Book are used.\
 Entities have OneToMany relationship i.e, one Author can own multiple Books.\
 They are mapped to corresponding tables in Mysql DB.
-OneToMany relationship annotation adds AUTH_id column into Book table at runtime.\
+OneToMany relationship annotation adds AUTH_id column into Book table at runtime.
 
 2. Dao \
-Data Access Objects (DAO) has basic methods to operate on entities or tables.\
+Data Access Objects (DAO) has basic methods to operate on entities or tables.
 
 3. Resources and Service \
 AuthorService and BookService serves /author and /book endpoints respectively and offers above mentioned DAO ops.\
 A special operation known as 'findAuthorByIds' is added that fetches multiple Authors from datasource (DB) given a list of Author IDs.\
-/graphql endpoint is added is served by GraphQLController.\
+/graphql endpoint is added is served by GraphQLController.
 
 4. GraphQL Provider and Data Fetchers \
 Takes care of parsing graphql-schema and creating typeDefs out of it.\
@@ -27,10 +27,10 @@ RuntimeWiring is created by mapping Types to Datafetchers.\
 Then the typeDefs and runtimeWiring are used to create a graphQLSchema.\
 GraphQLSchema thus created is bound to a graphQL instance.\
 In the init, dataloaders are registered and the same are used in graphQL execution.\
-There are 2 data fetchers to get author data, one uses data loader and the other one without data loader.\
+There are 2 data fetchers to get author data, one uses data loader and the other one without data loader.
 
 5. EclipseLink \
-A persistence.xml config is added in resources and has required config to create tables (if not present).\
+A persistence.xml config is added in resources and has required config to create tables (if not present).
 
 6. To start with: \
 Build the project:
