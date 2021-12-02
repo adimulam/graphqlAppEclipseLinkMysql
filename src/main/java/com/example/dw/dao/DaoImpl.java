@@ -53,14 +53,22 @@ public class DaoImpl implements Dao {
     }
 
     @Override
-    public <T> List<T> find(final Class<T> clazz, final String namedQuery, final Map<String, Object> paramsMap) {
+    public <T> List<T> find(final Class<T> clazz, final String namedQuery,
+                            final Map<String, Object> paramsMap, int limit) {
         final Query query = fillNamedParametersQuery(clazz, namedQuery, paramsMap);
+        System.out.print(query.toString());
+        System.out.println(paramsMap);
+        if (limit > 0) {
+            return query.setMaxResults(limit).getResultList();
+        }
         return query.getResultList();
     }
 
-    private Query fillNamedParametersQuery(final Class clazz, final String namedQuery, final Map<String, Object> paramsMap) {
+    private Query fillNamedParametersQuery(final Class clazz, final String namedQuery,
+                                           final Map<String, Object> paramsMap) {
         final Query query = entityManager.get().createNamedQuery(namedQuery, clazz);
         paramsMap.entrySet().forEach((param) -> query.setParameter(param.getKey(), param.getValue()));
         return query;
     }
+
 }

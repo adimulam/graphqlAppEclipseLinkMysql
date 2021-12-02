@@ -1,7 +1,7 @@
 type Query {
     books: [Book]
     book(id: ID): Book
-    booksWithFilter(filters: BookFilter): [Book]
+    booksWithFilter(filters: BookFilter, pagination: Pagination): [Book]
 }
 
 type Book {
@@ -28,4 +28,9 @@ input BookFilter {
 input FilterField {
     operator: String!
     value: String!
+}
+
+input Pagination {
+    limit: Int
+    offset: Int
 }

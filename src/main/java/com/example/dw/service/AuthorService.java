@@ -8,6 +8,6 @@ import java.util.List;
 public class AuthorService extends AbstractService<Author> {
 
     public List<Author> findByIds(List<Long> ids) {
-        return dao.find(entityClass, "Author.findByIds", ImmutableMap.of("ids", ids));
+        return dao.find(entityClass, "Author.findByIds", ImmutableMap.of("ids", ids), 0);
     }
 }

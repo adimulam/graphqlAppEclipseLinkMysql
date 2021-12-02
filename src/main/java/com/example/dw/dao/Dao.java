@@ -17,6 +17,6 @@ public interface Dao {
 
     <T> List<T> findAll(Class clazz);
 
-    <T> List<T> find(Class<T> clazz, String namedQuery, Map<String, Object> paramsMap);
+    <T> List<T> find(Class<T> clazz, String namedQuery, Map<String, Object> paramsMap, int limit);
 
 }

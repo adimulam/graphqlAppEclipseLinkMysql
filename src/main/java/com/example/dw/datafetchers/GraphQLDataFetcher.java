@@ -74,10 +74,26 @@ public class GraphQLDataFetcher {
         return dataFetchingEnvironment -> {
             printDataFetchingEnv(dataFetchingEnvironment);
             ObjectMapper objectMapper = new ObjectMapper();
-            Object rawInput = dataFetchingEnvironment.getArgument("filters");
-            BookFilter inputObject = objectMapper.convertValue(rawInput, BookFilter.class);
-            System.out.println(inputObject);
-            return bookService.findBookByFilter(inputObject);
+            if (dataFetchingEnvironment.getArgument("filters") != null
+                && dataFetchingEnvironment.getArgument("pagination") == null) {
+                Object filterInput = dataFetchingEnvironment.getArgument("filters");
+                BookFilter filterObject = objectMapper.convertValue(filterInput, BookFilter.class);
+                System.out.println(filterObject);
+                return bookService.findBookByFilter(filterObject);
+            }
+
+            if (dataFetchingEnvironment.getArgument("filters") != null
+                && dataFetchingEnvironment.getArgument("pagination") != null) {
+                Object filterInput = dataFetchingEnvironment.getArgument("filters");
+                Object paginationInput = dataFetchingEnvironment.getArgument("pagination");
+                BookFilter filterObject = objectMapper.convertValue(filterInput, BookFilter.class);
+                Pagination paginationObject = objectMapper.convertValue(paginationInput, Pagination.class);
+                System.out.println(filterObject);
+                System.out.println(paginationObject);
+                return bookService.findBookByFilter(filterObject,paginationObject);
+            }
+
+            return null;
         };
     }
 
