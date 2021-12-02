@@ -5,21 +5,21 @@ Framework - Dropwizard\
 JPA - EclipseLink\
 DB - MySql\
 DI - Guice\
-GraphQL - graphql-java\
+GraphQL - graphql-java
 
 1. Entities\
 Basic Entities Author and Book are used.\
 Entities have OneToMany relationship i.e, one Author can own multiple Books.\
 They are mapped to corresponding tables in Mysql DB.
-OneToMany relationship annotation adds AUTH_id column into Book table at runtime.\
+OneToMany relationship annotation adds AUTH_id column into Book table at runtime.
 
 2. Dao \
-Data Access Objects (DAO) has basic methods to operate on entities or tables.\
+Data Access Objects (DAO) has basic methods to operate on entities or tables.
 
 3. Resources and Service \
 AuthorService and BookService serves /author and /book endpoints respectively and offers above mentioned DAO ops.\
 A special operation known as 'findAuthorByIds' is added that fetches multiple Authors from datasource (DB) given a list of Author IDs.\
-/graphql endpoint is added is served by GraphQLController.\
+/graphql endpoint is added is served by GraphQLController.
 
 4. GraphQL Provider and Data Fetchers \
 Takes care of parsing graphql-schema and creating typeDefs out of it.\
@@ -27,10 +27,10 @@ RuntimeWiring is created by mapping Types to Datafetchers.\
 Then the typeDefs and runtimeWiring are used to create a graphQLSchema.\
 GraphQLSchema thus created is bound to a graphQL instance.\
 In the init, dataloaders are registered and the same are used in graphQL execution.\
-There are 2 data fetchers to get author data, one uses data loader and the other one without data loader.\
+There are 2 data fetchers to get author data, one uses data loader and the other one without data loader.
 
 5. EclipseLink \
-A persistence.xml config is added in resources and has required config to create tables (if not present).\
+A persistence.xml config is added in resources and has required config to create tables (if not present).
 
 6. To start with: \
 Build the project:
@@ -105,4 +105,49 @@ Using Registered Data Loaders
 [EL Fine]: sql: 2021-11-15 09:36:25.409--ServerSession(1392339830)--Connection(764423036)--SELECT id, age, name FROM author WHERE (id IN (?,?,?))
         bind => [3 parameters bound]
 [0:0:0:0:0:0:0:1] - - [15/Nov/2021:04:06:25 +0000] "POST /graphql HTTP/1.1" 200 192 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36" 578
+```
+
+8. GraphQL query with filter:
+```
+query {
+  booksWithFilter(filters: {
+    price: {
+      operator:"eq",
+      value: "500"
+    }
+  }) {
+    id
+    title
+    description
+    price
+    author {
+      id
+      name
+      age
+    }
+  }
+}
+```
+
+Output:
+```
+{
+  "errors": [],
+  "data": {
+    "booksWithFilter": [
+      {
+        "id": "3",
+        "title": "JavaScript Programming",
+        "description": "Programming in JS",
+        "price": 500,
+        "author": {
+          "id": "3",
+          "name": "Jim",
+          "age": 35
+        }
+      }
+    ]
+  },
+  "dataPresent": true
+}
 ```
