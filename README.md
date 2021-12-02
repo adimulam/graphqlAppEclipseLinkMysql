@@ -106,3 +106,48 @@ Using Registered Data Loaders
         bind => [3 parameters bound]
 [0:0:0:0:0:0:0:1] - - [15/Nov/2021:04:06:25 +0000] "POST /graphql HTTP/1.1" 200 192 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36" 578
 ```
+
+8. GraphQL query with filter:
+```
+query {
+  booksWithFilter(filters: {
+    price: {
+      operator:"eq",
+      value: "500"
+    }
+  }) {
+    id
+    title
+    description
+    price
+    author {
+      id
+      name
+      age
+    }
+  }
+}
+```
+
+Output:
+```
+{
+  "errors": [],
+  "data": {
+    "booksWithFilter": [
+      {
+        "id": "3",
+        "title": "JavaScript Programming",
+        "description": "Programming in JS",
+        "price": 500,
+        "author": {
+          "id": "3",
+          "name": "Jim",
+          "age": 35
+        }
+      }
+    ]
+  },
+  "dataPresent": true
+}
+```
