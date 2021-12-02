@@ -34,9 +34,10 @@ public class GraphQLController {
             @Context UriInfo uriInfo,
             String body
     ) throws ParseException {
-        log.info("Received GraphQL Query: ", body);
+        log.info("Received GraphQL Query: {}", body);
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(body);
-        return graphQLProvider.invoke(json.getAsString("query"));
+        //return graphQLProvider.invoke(json.getAsString("query"));
+        return graphQLProvider.invokePerRequest(json.getAsString("query"));
     }
 }

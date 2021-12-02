@@ -1,12 +1,14 @@
 type Query {
-    bookById(id: ID): Book
     books: [Book]
+    book(id: ID): Book
+    booksWithFilter(filters: BookFilter): [Book]
 }
 
 type Book {
     id: ID
     description: String
     title: String
+    price: Int
     authorId: Int
     author: Author!
 }
@@ -15,4 +17,15 @@ type Author {
     id: ID
     name: String
     age: Int
+    books: [Book]
+}
+
+input BookFilter {
+    price: FilterField
+    title: FilterField
+}
+
+input FilterField {
+    operator: String!
+    value: String!
 }

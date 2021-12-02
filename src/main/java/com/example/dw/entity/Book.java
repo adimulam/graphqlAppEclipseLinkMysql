@@ -9,6 +9,14 @@ import javax.persistence.*;
 @Getter
 @Table(name = "book")
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "Book.findByTitle", query = "SELECT b FROM com.example.dw.entity.Book b WHERE b.title LIKE :title"),
+        @NamedQuery(name = "Book.findByPriceGt", query = "SELECT b FROM com.example.dw.entity.Book b WHERE b.price > :price"),
+        @NamedQuery(name = "Book.findByPriceGe", query = "SELECT b FROM com.example.dw.entity.Book b WHERE b.price >= :price"),
+        @NamedQuery(name = "Book.findByPriceLt", query = "SELECT b FROM com.example.dw.entity.Book b WHERE b.price < :price"),
+        @NamedQuery(name = "Book.findByPriceLe", query = "SELECT b FROM com.example.dw.entity.Book b WHERE b.price <= :price"),
+        @NamedQuery(name = "Book.findByPriceEq", query = "SELECT b FROM com.example.dw.entity.Book b WHERE b.price = :price")
+})
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +31,9 @@ public class Book {
 
     @Column(name = "title", nullable = false)
     private String title;
+
+    @Column(name = "price")
+    private int price;
 
     @ManyToOne()
     private Author auth;
