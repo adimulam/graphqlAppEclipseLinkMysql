@@ -21,13 +21,11 @@ type Author {
 }
 
 input BookFilter {
-    price: FilterField
-    title: FilterField
-}
-
-input FilterField {
-    operator: String!
-    value: String!
+    priceEq: Int
+    priceGt: Int
+    priceGe: Int
+    priceLt: Int
+    priceLe: Int
 }
 
 input Pagination {

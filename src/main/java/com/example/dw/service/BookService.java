@@ -4,9 +4,18 @@ import com.example.dw.datafetchers.BookFilter;
 import com.example.dw.datafetchers.Pagination;
 import com.example.dw.datafetchers.SortByInput;
 import com.example.dw.entity.Book;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableMap;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class BookService extends AbstractService<Book> {
 
@@ -92,6 +101,54 @@ public class BookService extends AbstractService<Book> {
         if (filter.getTitle() != null) {
             System.out.println(filter.getTitle());
         }
+        return null;
+    }
+
+    private static JSONObject createJSONObject(String jsonString){
+        JSONObject  jsonObject=new JSONObject();
+        JSONParser jsonParser=new  JSONParser();
+        if ((jsonString != null) && !(jsonString.isEmpty())) {
+            try {
+                jsonObject=(JSONObject) jsonParser.parse(jsonString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return jsonObject;
+    }
+
+    public Object findBookByFilterFinal(Object filter, Object pagination, Object distinct, Object sort) throws JsonProcessingException {
+        int limit = 0;
+        if (filter != null) {
+            ObjectWriter filterObjWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String filterString = filterObjWriter.writeValueAsString(filter);
+            JSONObject filterJson = createJSONObject(filterString);
+            String fil = null;
+            int price = 0;
+            for (String ft : filterJson.keySet()) {
+                fil = ft;
+                price = (Integer) filterJson.get(fil);
+            }
+            if (pagination != null) {
+                ObjectWriter paginationObjWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+                String paginationString = paginationObjWriter.writeValueAsString(pagination);
+                JSONObject paginationJson = createJSONObject(paginationString);
+                limit = (Integer) paginationJson.get("limit");
+            }
+            switch(Objects.requireNonNull(fil)) {
+                case "priceLt":
+                    return dao.find(entityClass, "Book.findByPriceLt", ImmutableMap.of("price", price ), limit);
+                case "priceLe":
+                    return dao.find(entityClass, "Book.findByPriceLe", ImmutableMap.of("price", price ), limit);
+                case "priceGt":
+                    return dao.find(entityClass, "Book.findByPriceGt", ImmutableMap.of("price", price ), limit);
+                case "priceGe":
+                    return dao.find(entityClass, "Book.findByPriceGe", ImmutableMap.of("price", price ), limit);
+                case "priceEq":
+                    return dao.find(entityClass, "Book.findByPriceEq", ImmutableMap.of("price", price ), limit);
+            }
+        }
+
         return null;
     }
 }

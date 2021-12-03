@@ -5,6 +5,7 @@ import com.example.dw.entity.Author;
 import com.example.dw.service.BookService;
 import com.example.dw.service.AuthorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.schema.DataFetcher;
 import graphql.language.Field;
 import graphql.schema.DataFetchingEnvironment;
@@ -127,6 +128,17 @@ public class GraphQLDataFetcher {
         };
     }
 
+    public DataFetcher getBooksByFilterDataFetcherFinal() {
+        return dataFetchingEnvironment -> {
+            printDataFetchingEnv(dataFetchingEnvironment);
+            Object filters = dataFetchingEnvironment.getArgument("filters");
+            Object pagination = dataFetchingEnvironment.getArgument("pagination");
+            Object distinctOn = dataFetchingEnvironment.getArgument("distinctOn");
+            Object sortBy = dataFetchingEnvironment.getArgument("sort");
+            return bookService.findBookByFilterFinal(filters, pagination, distinctOn, sortBy);
+        };
+    }
+
     public DataFetcher getAuthorDataFetcherWithDataLoader() {
         return dataFetchingEnvironment -> {
             printDataFetchingEnv(dataFetchingEnvironment);
@@ -171,7 +183,7 @@ public class GraphQLDataFetcher {
     public GraphQLCodeRegistry.Builder generateBookFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "books"), this.getAllBooksDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "book"), this.getBookByIdDataFetcher());
-        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksWithFilter"), this.getBooksByFilterDataFetcherNew());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksWithFilter"), this.getBooksByFilterDataFetcherFinal());
         return codeRegistryBuilder;
     }
 
