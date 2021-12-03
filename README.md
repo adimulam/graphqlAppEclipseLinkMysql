@@ -186,8 +186,8 @@ Output:
 query {
   booksAggregator(
     aggregation: {
-    	type:AVERAGE
-      field:"price"
+        type:AVERAGE
+        field:"price"
     }
   )
 }
