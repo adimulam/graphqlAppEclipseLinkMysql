@@ -110,21 +110,14 @@ Using Registered Data Loaders
 8. GraphQL query with filter:
 ```
 query {
-  booksWithFilter(filters: {
-    price: {
-      operator:"eq",
-      value: "500"
-    }
-  }) {
+  booksWithFilter(
+    filters: {
+    	priceGt:200
+    })
+ {
     id
     title
-    description
     price
-    author {
-      id
-      name
-      age
-    }
   }
 }
 ```
@@ -155,14 +148,13 @@ Output:
 9. Query with basic pagination:
 ```
 query {
-  booksWithFilter(filters: {
-    price: {
-      operator:"gt",
-      value: "50"
-    }},
+  booksWithFilter(
+    filters: {
+        priceGt:50
+    },
     pagination:{
-      limit:1,
-      offset:0
+        limit:1,
+        offset:0
     })
  {
     id
@@ -184,6 +176,29 @@ Output:
         "price": 200
       }
     ]
+  },
+  "dataPresent": true
+}
+```
+
+10. Aggregation Example
+```
+query {
+  booksAggregator(
+    aggregation: {
+    	type:AVERAGE
+      field:"price"
+    }
+  )
+}
+```
+
+Output:
+```
+{
+  "errors": [],
+  "data": {
+    "booksAggregator": 333
   },
   "dataPresent": true
 }
