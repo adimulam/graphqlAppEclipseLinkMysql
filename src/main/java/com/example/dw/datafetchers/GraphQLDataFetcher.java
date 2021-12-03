@@ -97,6 +97,36 @@ public class GraphQLDataFetcher {
         };
     }
 
+
+    public DataFetcher getBooksByFilterDataFetcherNew() {
+        return dataFetchingEnvironment -> {
+            printDataFetchingEnv(dataFetchingEnvironment);
+            BookFilter filterObject = null;
+            Pagination paginationObject = null;
+            Boolean distinct = null;
+            SortByInput sort = null;
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            Object filters = dataFetchingEnvironment.getArgument("filters");
+            Object pagination = dataFetchingEnvironment.getArgument("pagination");
+            Object distinctOn = dataFetchingEnvironment.getArgument("distinctOn");
+            Object sortBy = dataFetchingEnvironment.getArgument("sort");
+            if (filters != null) {
+                filterObject = objectMapper.convertValue(filters, BookFilter.class);
+            }
+            if (pagination != null) {
+                paginationObject = objectMapper.convertValue(pagination, Pagination.class);
+            }
+            if (distinctOn != null) {
+                distinct = objectMapper.convertValue(distinctOn, Boolean.class);
+            }
+            if (sortBy != null) {
+                sort = objectMapper.convertValue(sortBy, SortByInput.class);
+            }
+            return bookService.findBookByFilter(filterObject, paginationObject, distinct, sort);
+        };
+    }
+
     public DataFetcher getAuthorDataFetcherWithDataLoader() {
         return dataFetchingEnvironment -> {
             printDataFetchingEnv(dataFetchingEnvironment);
@@ -141,7 +171,7 @@ public class GraphQLDataFetcher {
     public GraphQLCodeRegistry.Builder generateBookFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "books"), this.getAllBooksDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "book"), this.getBookByIdDataFetcher());
-        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksWithFilter"), this.getBooksByFilterDataFetcher());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksWithFilter"), this.getBooksByFilterDataFetcherNew());
         return codeRegistryBuilder;
     }
 

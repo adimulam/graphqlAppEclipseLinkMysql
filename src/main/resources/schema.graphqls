@@ -34,3 +34,13 @@ input Pagination {
     limit: Int
     offset: Int
 }
+
+enum SortTypeEnum {
+    DESC
+    ASC
+}
+
+input SortByInput {
+    type: SortTypeEnum
+    field: String
+}
