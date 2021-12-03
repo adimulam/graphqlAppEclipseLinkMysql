@@ -12,10 +12,7 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class BookService extends AbstractService<Book> {
 
@@ -148,7 +145,35 @@ public class BookService extends AbstractService<Book> {
                     return dao.find(entityClass, "Book.findByPriceEq", ImmutableMap.of("price", price ), limit);
             }
         }
+        return null;
+    }
 
+    public Object findAggregation(Object aggregation) throws JsonProcessingException {
+        String aggregationType = null;
+        String aggregationField = null;
+        if (aggregation != null) {
+            ObjectWriter paginationObjWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String aggregationString = paginationObjWriter.writeValueAsString(aggregation);
+            JSONObject aggregationJson = createJSONObject(aggregationString);
+            aggregationType = (String)aggregationJson.get("type");
+            aggregationField = (String)aggregationJson.get("field");
+            Map<String, String> map = new HashMap<>();
+            map.put("type", aggregationType);
+            map.put("field", aggregationField);
+            System.out.println(map);
+            switch(aggregationType.toLowerCase(Locale.ROOT)) {
+                case "max":
+                    return dao.findAggregate(entityClass, "Book.findAggregateMax");
+                case "min":
+                    return dao.findAggregate(entityClass, "Book.findAggregateMin");
+                case "average":
+                    return dao.findAggregate(entityClass, "Book.findAggregateAvg");
+                case "sum":
+                    return dao.findAggregate(entityClass, "Book.findAggregateSum");
+                case "count":
+                    return dao.findAggregate(entityClass, "Book.findAggregateCount");
+            }
+        }
         return null;
     }
 }

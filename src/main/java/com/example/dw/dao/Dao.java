@@ -1,5 +1,7 @@
 package com.example.dw.dao;
 
+import com.example.dw.entity.Book;
+
 import java.util.List;
 import java.util.Map;
 
@@ -19,4 +21,5 @@ public interface Dao {
 
     <T> List<T> find(Class<T> clazz, String namedQuery, Map<String, Object> paramsMap, int limit);
 
+    <T> float findAggregate(Class<T> clazz, String namedQuery);
 }

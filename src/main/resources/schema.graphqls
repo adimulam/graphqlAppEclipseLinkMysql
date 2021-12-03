@@ -2,6 +2,7 @@ type Query {
     books: [Book]
     book(id: ID): Book
     booksWithFilter(filters: BookFilter, pagination: Pagination): [Book]
+    booksAggregator(filters: BookFilter, aggregation:AggregationInput): Float
 }
 
 type Book {
@@ -40,5 +41,18 @@ enum SortTypeEnum {
 
 input SortByInput {
     type: SortTypeEnum
+    field: String
+}
+
+enum AggregationEnum {
+    COUNT
+    SUM
+    MIN
+    MAX
+    AVERAGE
+}
+
+input AggregationInput {
+    type: AggregationEnum
     field: String
 }

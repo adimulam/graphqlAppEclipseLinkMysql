@@ -139,6 +139,14 @@ public class GraphQLDataFetcher {
         };
     }
 
+
+    private DataFetcher<?> booksAggregator() {
+        return dataFetchingEnvironment -> {
+            Object aggregation = dataFetchingEnvironment.getArgument("aggregation");
+            return bookService.findAggregation(aggregation);
+        };
+    }
+
     public DataFetcher getAuthorDataFetcherWithDataLoader() {
         return dataFetchingEnvironment -> {
             printDataFetchingEnv(dataFetchingEnvironment);
@@ -184,6 +192,7 @@ public class GraphQLDataFetcher {
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "books"), this.getAllBooksDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "book"), this.getBookByIdDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksWithFilter"), this.getBooksByFilterDataFetcherFinal());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksAggregator"), this.booksAggregator());
         return codeRegistryBuilder;
     }
 

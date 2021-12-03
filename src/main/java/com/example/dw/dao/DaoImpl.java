@@ -71,4 +71,10 @@ public class DaoImpl implements Dao {
         return query;
     }
 
+    @Override
+    public <T> float findAggregate(final Class<T> clazz, final String namedQuery) {
+        float result = ((Number)entityManager.get().createNamedQuery(namedQuery).getSingleResult()).intValue();
+        return result;
+    }
+
 }
