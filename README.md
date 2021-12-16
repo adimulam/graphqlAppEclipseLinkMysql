@@ -203,3 +203,116 @@ Output:
   "dataPresent": true
 }
 ```
+
+11. Mutation
+```
+mutation createBook{
+  createBook(filters: {
+    	title:"Kubernetes Developer", 
+      description:"Kubernetes Certification",
+    	price:1500,
+    	authorId:3
+  }) {
+    id
+    title
+    description
+    price
+  }
+}
+  
+{
+  "errors": [],
+  "data": {
+    "createBook": {
+      "id": "5",
+      "title": "Kubernetes Developer",
+      "description": "Kubernetes Certification",
+      "price": 1500
+    }
+  },
+  "dataPresent": true
+}  
+```
+
+Get the list of books again:
+```
+query listall {
+	books {
+    id
+    title
+    authorId
+    description
+    price
+		author {
+      age
+      name
+    }
+  }
+}
+
+{
+  "errors": [],
+  "data": {
+    "books": [
+      {
+        "id": "1",
+        "title": "C Programming",
+        "authorId": 1,
+        "description": "Programming in C",
+        "price": 200,
+        "author": {
+          "age": 25,
+          "name": "Bob"
+        }
+      },
+      {
+        "id": "2",
+        "title": "Java Programming",
+        "authorId": 2,
+        "description": "Programming in Java",
+        "price": 300,
+        "author": {
+          "age": 30,
+          "name": "Sam"
+        }
+      },
+      {
+        "id": "3",
+        "title": "JavaScript Programming",
+        "authorId": 3,
+        "description": "Programming in JS",
+        "price": 500,
+        "author": {
+          "age": 35,
+          "name": "Jim"
+        }
+      },
+      {
+        "id": "4",
+        "title": "GraphQL hands on",
+        "authorId": 2,
+        "description": "GraphQL API",
+        "price": 500,
+        "author": {
+          "age": 30,
+          "name": "Sam"
+        }
+      },
+      {
+        "id": "5",
+        "title": "Kubernetes Developer",
+        "authorId": 3,
+        "description": "Kubernetes Certification",
+        "price": 1500,
+        "author": {
+          "age": 35,
+          "name": "Jim"
+        }
+      }
+    ]
+  },
+  "dataPresent": true
+}
+```
+
+  
