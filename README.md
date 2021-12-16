@@ -204,7 +204,7 @@ Output:
 }
 ```
 
-11. Mutation
+11. Create
 ```
 mutation createBook{
   createBook(filters: {
@@ -315,4 +315,71 @@ query listall {
 }
 ```
 
-  
+12. Update
+```
+Before:
+      {
+        "id": "4",
+        "title": "GraphQL hands on",
+        "authorId": 2,
+        "description": "GraphQL API",
+        "price": 500,
+        "author": {
+          "age": 30,
+          "name": "Sam"
+        }
+      },
+
+Query:
+mutation updateBook{
+  updateBook(filters: {
+    	id:4
+    	title:"GraphQL Practical", 
+      description:"GraphQL API developer",
+    	price:1200,
+    	authorId:3
+  }) {
+    id
+    title
+    description
+    price
+  }
+}
+
+Get:
+{
+  books {
+    id
+    title
+    price
+    description
+    author {
+      name
+      age
+    }
+  }
+}
+
+After:
+      {
+        "id": "4",
+        "title": "GraphQL Practical",
+        "price": 1200,
+        "description": "GraphQL API developer",
+        "author": {
+          "name": "Jim",
+          "age": 35
+        }
+      },
+```
+
+13. Delete
+```
+mutation deleteBook{
+  deleteBook(filters: {
+    	id:4
+  }) {
+    id
+  }
+}
+```
