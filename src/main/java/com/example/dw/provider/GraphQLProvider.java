@@ -58,7 +58,7 @@ public class GraphQLProvider {
 
     private void registerDataLoaders() {
         dataLoaderRegistry = new DataLoaderRegistry();
-        DataLoaderOptions options = new DataLoaderOptions().setCachingEnabled(Boolean.FALSE);
+        DataLoaderOptions options = new DataLoaderOptions().setCachingEnabled(Boolean.TRUE);
         DataLoader<Long, Author> authorDataLoader = DataLoaderFactory
                 .newDataLoader(graphQLDataFetchers.authorBatchLoader(), options);
         dataLoaderRegistry.register("authors", authorDataLoader);
@@ -67,6 +67,7 @@ public class GraphQLProvider {
 
     private GraphQLSchema buildSchema(String sdl) {
         TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(sdl);
+        /*
         List<GraphQLDataFetcher.GraphQLSchemaType> typeList = new ArrayList<>();
         Map<java.lang.String, TypeDefinition> list = typeRegistry.types();
         for (Map.Entry<String, TypeDefinition> entry : list.entrySet()) {
@@ -87,7 +88,7 @@ public class GraphQLProvider {
             System.out.println(type.getType());
             System.out.println(type.getFieldList());
         }
-        /*
+
         types.forEach((key, value) -> {
             System.out.println();
             System.out.println(key+" : "+ value);
@@ -103,7 +104,6 @@ public class GraphQLProvider {
             }
         }
         */
-
         RuntimeWiring runtimeWiring = buildWiring();
         SchemaGenerator schemaGenerator = new SchemaGenerator();
         return schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiring);

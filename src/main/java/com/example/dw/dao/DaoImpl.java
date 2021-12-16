@@ -22,8 +22,10 @@ public class DaoImpl implements Dao {
     }
 
     @Override
-    public <T> void persist(final T object) {
+    public <T> T persist(final T object) {
         entityManager.get().persist(object);
+        entityManager.get().flush();
+        return object;
     }
 
     @Override

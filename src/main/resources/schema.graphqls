@@ -5,6 +5,10 @@ type Query {
     booksAggregator(filters: BookFilter, aggregation:AggregationInput): Float
 }
 
+type Mutation {
+    createBook(filters: BookPayloadInput): Book
+}
+
 type Book {
     id: ID
     description: String
@@ -12,6 +16,19 @@ type Book {
     price: Int
     authorId: Int
     author: Author!
+    countryOfOrigin: String
+    publisher: String
+    contact: String
+}
+
+input BookPayloadInput {
+    title: String!
+    description: String!
+    price: Int
+    authorId: Int!
+    countryOfOrigin: String
+    publisher: String
+    contact: String
 }
 
 type Author {

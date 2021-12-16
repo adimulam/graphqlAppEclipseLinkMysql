@@ -17,8 +17,8 @@ public abstract class AbstractService<T> {
         this.entityClass = (Class<T>) Generics.getTypeParameter(getClass());
     }
 
-    public void save(final T object) {
-        dao.persist(object);
+    public T save(final T object) {
+        return dao.persist(object);
     }
 
     public <ID> T findById(final ID id) {

@@ -1,13 +1,11 @@
 package com.example.dw.dao;
 
-import com.example.dw.entity.Book;
-
 import java.util.List;
 import java.util.Map;
 
 public interface Dao {
 
-    <T> void persist(T object);
+    <T> T persist(T object);
 
     <T, ID> T findById(Class<T> clazz, ID id);
 
