@@ -21,6 +21,10 @@ public abstract class AbstractService<T> {
         return dao.persist(object);
     }
 
+    public T update(final T object) {
+        return dao.merge(object);
+    }
+
     public <ID> T findById(final ID id) {
         return dao.findById(entityClass, id);
     }
@@ -29,8 +33,9 @@ public abstract class AbstractService<T> {
         return dao.findAll(entityClass);
     }
 
-    public void delete(final T object) {
-        dao.remove(object);
+    public <ID> ID delete(final ID id) {
+        dao.removeById(entityClass, id);
+        return id;
     }
 
     public <ID> void deleteById(final ID id) {

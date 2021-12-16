@@ -6,7 +6,9 @@ type Query {
 }
 
 type Mutation {
-    createBook(filters: BookPayloadInput): Book
+    createBook(filters: CreateBookPayloadInput): Book
+    updateBook(filters: UpdateBookPayloadInput): Book
+    deleteBook(filters: DeleteBookPayloadInput): Book
 }
 
 type Book {
@@ -21,7 +23,7 @@ type Book {
     contact: String
 }
 
-input BookPayloadInput {
+input CreateBookPayloadInput {
     title: String!
     description: String!
     price: Int
@@ -29,6 +31,21 @@ input BookPayloadInput {
     countryOfOrigin: String
     publisher: String
     contact: String
+}
+
+input UpdateBookPayloadInput {
+    id: ID!
+    title: String
+    description: String
+    price: Int
+    authorId: Int
+    countryOfOrigin: String
+    publisher: String
+    contact: String
+}
+
+input DeleteBookPayloadInput {
+    id: ID!
 }
 
 type Author {

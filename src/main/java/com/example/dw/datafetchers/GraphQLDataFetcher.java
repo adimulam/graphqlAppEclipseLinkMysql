@@ -262,6 +262,32 @@ public class GraphQLDataFetcher {
         };
     }
 
+    public DataFetcher updateBook() {
+        return dataFetchingEnvironment -> {
+            ObjectMapper objectMapper = new ObjectMapper();
+            if (dataFetchingEnvironment.getArgument("filters") != null) {
+                Object payload = dataFetchingEnvironment.getArgument("filters");
+                Book book = objectMapper.convertValue(payload, Book.class);
+                System.out.println(payload);
+                return bookService.update(book);
+            }
+            return null;
+        };
+    }
+
+    public DataFetcher deleteBook() {
+        return dataFetchingEnvironment -> {
+            ObjectMapper objectMapper = new ObjectMapper();
+            if (dataFetchingEnvironment.getArgument("filters") != null) {
+                Object payload = dataFetchingEnvironment.getArgument("filters");
+                Book book = objectMapper.convertValue(payload, Book.class);
+                System.out.println(payload);
+                return bookService.delete(book.getId());
+            }
+            return null;
+        };
+    }
+
     public DataFetcher getBookByIdDataFetcher() {
         return dataFetchingEnvironment -> {
             printDataFetchingEnv(dataFetchingEnvironment);
@@ -344,6 +370,8 @@ public class GraphQLDataFetcher {
 
     public GraphQLCodeRegistry.Builder generateMutationFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Mutation", "createBook"), this.createBook());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Mutation", "updateBook"), this.updateBook());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Mutation", "deleteBook"), this.deleteBook());
         return codeRegistryBuilder;
     }
 
