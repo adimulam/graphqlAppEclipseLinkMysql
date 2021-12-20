@@ -21,6 +21,7 @@ type Book {
     countryOfOrigin: String
     publisher: String
     contact: String
+    numOfPages: Int
 }
 
 input CreateBookPayloadInput {

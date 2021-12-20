@@ -333,6 +333,7 @@ public class GraphQLDataFetcher {
         objectMap.put("countryOfOrigin", jsonResponse.get("countryOfOrigin"));
         objectMap.put("publisher", jsonResponse.get("publisher"));
         objectMap.put("contact", jsonResponse.get("contact"));
+        objectMap.put("numOfPages", jsonResponse.get("pages"));
         return objectMap;
     }
 
@@ -350,7 +351,7 @@ public class GraphQLDataFetcher {
     private DataFetcher<?> booksAggregator() {
         return dataFetchingEnvironment -> {
             Object aggregation = dataFetchingEnvironment.getArgument("aggregation");
-            return bookService.findAggregation(aggregation);
+            return bookService.findAggregation(aggregation).get("result");
         };
     }
 

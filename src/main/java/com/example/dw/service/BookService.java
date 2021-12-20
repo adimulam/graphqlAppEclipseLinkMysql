@@ -161,18 +161,29 @@ public class BookService extends AbstractService<Book> {
             map.put("type", aggregationType);
             map.put("field", aggregationField);
             System.out.println(map);
+            float result;
             switch(aggregationType.toLowerCase(Locale.ROOT)) {
                 case "max":
-                    return dao.findAggregate(entityClass, "Book.findAggregateMax");
+                    result = dao.findAggregate(entityClass, "Book.findAggregateMax");
+                    break;
                 case "min":
-                    return dao.findAggregate(entityClass, "Book.findAggregateMin");
+                    result = dao.findAggregate(entityClass, "Book.findAggregateMin");
+                    break;
                 case "average":
-                    return dao.findAggregate(entityClass, "Book.findAggregateAvg");
+                    result = dao.findAggregate(entityClass, "Book.findAggregateAvg");
+                    break;
                 case "sum":
-                    return dao.findAggregate(entityClass, "Book.findAggregateSum");
+                    result = dao.findAggregate(entityClass, "Book.findAggregateSum");
+                    break;
                 case "count":
-                    return dao.findAggregate(entityClass, "Book.findAggregateCount");
+                    result = dao.findAggregate(entityClass, "Book.findAggregateCount");
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + aggregationType.toLowerCase(Locale.ROOT));
             }
+            Map<String, Object> resMap = new HashMap<>();
+            resMap.put("result", result);
+            return resMap;
         }
         return null;
     }
