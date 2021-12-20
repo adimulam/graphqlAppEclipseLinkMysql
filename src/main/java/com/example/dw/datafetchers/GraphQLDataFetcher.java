@@ -5,11 +5,8 @@ import com.example.dw.entity.Author;
 import com.example.dw.service.BookService;
 import com.example.dw.service.AuthorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.schema.DataFetcher;
+import graphql.schema.*;
 import graphql.language.Field;
-import graphql.schema.DataFetchingEnvironment;
-import graphql.schema.FieldCoordinates;
-import graphql.schema.GraphQLCodeRegistry;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -40,6 +37,7 @@ public class GraphQLDataFetcher {
     /* Utilities */
     private void printDataFetchingEnv(DataFetchingEnvironment dataFetchingEnvironment) {
         Map<String, Object> args = dataFetchingEnvironment.getArguments();
+        List<SelectedField> fields = dataFetchingEnvironment.getSelectionSet().getFields();
         for (String key: args.keySet()) {
             System.out.println(key);
             System.out.println(args.get(key));
@@ -292,32 +290,50 @@ public class GraphQLDataFetcher {
         return dataFetchingEnvironment -> {
             printDataFetchingEnv(dataFetchingEnvironment);
             String bookId = dataFetchingEnvironment.getArgument("id");
-            Book book = bookService.findById(Long.parseLong(bookId));
+            Book book = bookService.findById(Long.parseLong(bookId)); //ds1 - mysqlDB
+
+            // REST
             Client client = ClientBuilder.newClient();
             Response response = client.target("http://localhost:9090/books/id/")
                     .queryParam("id", bookId)
                     .request(MediaType.APPLICATION_JSON)
                     .get();
-            JSONObject jsonResponse = createJSONObject(response.readEntity(String.class));
-            Map<String, Object> objectMap = new HashMap<>();
-            objectMap.put("id", book.getId());
-            objectMap.put("price", book.getPrice());
-            objectMap.put("description", book.getDescription());
-            objectMap.put("title", book.getTitle());
-            objectMap.put("authorId", book.getAuthorId());
-            objectMap.put("countryOfOrigin", jsonResponse.get("countryOfOrigin"));
-            objectMap.put("publisher", jsonResponse.get("publisher"));
-            objectMap.put("contact", jsonResponse.get("contact"));
-            return objectMap;
+            return prepareResponsePayload(book, response);
         };
     }
 
     public DataFetcher getAllBooksDataFetcher() {
         return dataFetchingEnvironment -> {
+            List<Map<String, Object>> result = new ArrayList<>();
             printDataFetchingEnv(dataFetchingEnvironment);
             System.out.println(bookService.findAll().getClass());
-            return bookService.findAll();
+            //return bookService.findAll();
+            List<Book> books = bookService.findAll();
+            Client client = ClientBuilder.newClient();
+            for (Book book: books) {
+                Response response = client.target("http://localhost:9090/books/id/")
+                        .queryParam("id", book.getId())
+                        .request(MediaType.APPLICATION_JSON)
+                        .get();
+                result.add(prepareResponsePayload(book, response));
+            }
+            return result;
         };
+    }
+
+    private Map<String, Object> prepareResponsePayload(Book book, Response response) {
+        JSONObject jsonResponse = createJSONObject(response.readEntity(String.class));
+
+        Map<String, Object> objectMap = new HashMap<>();
+        objectMap.put("id", book.getId());
+        objectMap.put("price", book.getPrice());
+        objectMap.put("description", book.getDescription());
+        objectMap.put("title", book.getTitle());
+        objectMap.put("authorId", book.getAuthorId());
+        objectMap.put("countryOfOrigin", jsonResponse.get("countryOfOrigin"));
+        objectMap.put("publisher", jsonResponse.get("publisher"));
+        objectMap.put("contact", jsonResponse.get("contact"));
+        return objectMap;
     }
 
     public DataFetcher getBooksByFilterDataFetcher() {
