@@ -114,7 +114,7 @@ public class BookService extends AbstractService<Book> {
         return jsonObject;
     }
 
-    public Object findBookByFilterFinal(Object filter, Object pagination, Object distinct, Object sort) throws JsonProcessingException {
+    public List<Book> findBookByFilterFinal(Object filter, Object pagination, Object distinct, Object sort) throws JsonProcessingException {
         int limit = 0;
         if (filter != null) {
             ObjectWriter filterObjWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -148,7 +148,7 @@ public class BookService extends AbstractService<Book> {
         return null;
     }
 
-    public Object findAggregation(Object aggregation) throws JsonProcessingException {
+    public Map<String,Object> findAggregation(Object aggregation) throws JsonProcessingException {
         String aggregationType = null;
         String aggregationField = null;
         if (aggregation != null) {
