@@ -9,9 +9,7 @@ import graphql.ExecutionInput;
 import graphql.GraphQL;
 import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation;
 import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentationOptions;
-import graphql.language.FieldDefinition;
-import graphql.language.ObjectTypeDefinition;
-import graphql.language.TypeDefinition;
+import graphql.language.*;
 import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.*;
@@ -37,6 +35,7 @@ public class GraphQLProvider {
     private DataLoaderRegistry dataLoaderRegistry;
 
     private GraphQL graphQL;
+    private ObjectTypeDefinition typeDefinition;
 
     public GraphQLProvider() {
     }
@@ -104,7 +103,7 @@ public class GraphQLProvider {
             }
         }
         */
-        RuntimeWiring runtimeWiring = buildWiring();
+        RuntimeWiring runtimeWiring = buildWiring(typeRegistry);
         SchemaGenerator schemaGenerator = new SchemaGenerator();
         return schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiring);
     }
@@ -123,7 +122,49 @@ public class GraphQLProvider {
     }
     */
 
-    private RuntimeWiring buildWiring() {
+    private static String getType(Type<?> type) {
+        if (type instanceof TypeName) {
+            return (((TypeName) type).getName());
+        }
+        if (type instanceof NonNullType) {
+            return getType(((NonNullType) type).getType());
+        }
+        if (type instanceof ListType) {
+            return getType(((ListType) type).getType());
+        }
+        return null;
+    }
+
+    private RuntimeWiring buildWiring(TypeDefinitionRegistry registry) {
+        for (ObjectTypeDefinition typeDefinition : registry.getTypes(ObjectTypeDefinition.class)) {
+            if ("Query".equals(typeDefinition.getName())) {
+                for (FieldDefinition fieldDefinition : typeDefinition.getFieldDefinitions()) {
+                    String fieldName = fieldDefinition.getName();
+                    boolean isMultiple = fieldDefinition.getType() instanceof ListType;
+                    String objectType = getType(fieldDefinition.getType());
+                    System.out.println(fieldName + '\t' + isMultiple + '\t' + objectType);
+                    System.out.println();
+                }
+            }
+        }
+
+        /*
+        //System.out.println(typeDefinitionRegistry.getType("Query").get());
+        if (registry.getType("Query").isPresent()) {
+            TypeDefinition queries = registry.getType("Query").get();
+            //System.out.println(queries);
+            //System.out.println(queries.getChildren());
+            System.out.println(queries.getChildren().getClass());
+            List<Node> children = queries.getChildren();
+            for (Node child : children) {
+                System.out.println(child);
+                FieldDefinition fieldDefinition = child.getFieldDefinitions();
+
+            }
+            //System.out.println(queries.getChildren().get(0));
+         }
+         */
+
         // Method-1
         GraphQLCodeRegistry.Builder codeRegistryBuilder = GraphQLCodeRegistry.newCodeRegistry();
         codeRegistryBuilder = graphQLDataFetchers.generateQueryFetchers(codeRegistryBuilder);

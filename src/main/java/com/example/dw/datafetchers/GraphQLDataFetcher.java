@@ -286,6 +286,23 @@ public class GraphQLDataFetcher {
         };
     }
 
+    private Map<String, Object> prepareResponsePayload(Book book, Response response) {
+        Map<String, Object> objectMap = new HashMap<>();
+        objectMap.put("id", book.getId());
+        objectMap.put("price", book.getPrice());
+        objectMap.put("description", book.getDescription());
+        objectMap.put("title", book.getTitle());
+        objectMap.put("authorId", book.getAuthorId());
+        if (response != null) {
+            JSONObject jsonResponse = createJSONObject(response.readEntity(String.class));
+            objectMap.put("countryOfOrigin", jsonResponse.get("countryOfOrigin"));
+            objectMap.put("publisher", jsonResponse.get("publisher"));
+            objectMap.put("contact", jsonResponse.get("contact"));
+            objectMap.put("numOfPages", jsonResponse.get("pages"));
+        }
+        return objectMap;
+    }
+
     public DataFetcher getBookByIdDataFetcher() {
         return dataFetchingEnvironment -> {
             printDataFetchingEnv(dataFetchingEnvironment);
@@ -321,23 +338,6 @@ public class GraphQLDataFetcher {
         };
     }
 
-    private Map<String, Object> prepareResponsePayload(Book book, Response response) {
-        Map<String, Object> objectMap = new HashMap<>();
-        objectMap.put("id", book.getId());
-        objectMap.put("price", book.getPrice());
-        objectMap.put("description", book.getDescription());
-        objectMap.put("title", book.getTitle());
-        objectMap.put("authorId", book.getAuthorId());
-        if (response != null) {
-            JSONObject jsonResponse = createJSONObject(response.readEntity(String.class));
-            objectMap.put("countryOfOrigin", jsonResponse.get("countryOfOrigin"));
-            objectMap.put("publisher", jsonResponse.get("publisher"));
-            objectMap.put("contact", jsonResponse.get("contact"));
-            objectMap.put("numOfPages", jsonResponse.get("pages"));
-        }
-        return objectMap;
-    }
-
     public DataFetcher getBooksByFilterDataFetcher() {
         return dataFetchingEnvironment -> {
             printDataFetchingEnv(dataFetchingEnvironment);
@@ -346,7 +346,7 @@ public class GraphQLDataFetcher {
             Object pagination = dataFetchingEnvironment.getArgument("pagination");
             Object distinctOn = dataFetchingEnvironment.getArgument("distinctOn");
             Object sortBy = dataFetchingEnvironment.getArgument("sort");
-            List<Book> books = bookService.findBookByFilterFinal(filters, pagination, distinctOn, sortBy);
+            List<Book> books = bookService.findBookByFilter(filters, pagination, distinctOn, sortBy);
             for (Book book: books) {
                 Client client = ClientBuilder.newClient();
                 Response response = client.target("http://localhost:9090/books/id/")
