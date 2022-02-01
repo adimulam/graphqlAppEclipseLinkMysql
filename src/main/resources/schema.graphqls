@@ -3,6 +3,14 @@ type Query {
     book(id: ID): Book
     booksWithFilter(filters: BookFilter, pagination: Pagination): [Book]
     booksAggregator(filters: BookFilter, aggregation:AggregationInput): Float
+
+    # Interface
+    items: [Item]
+    item(id: ID!): Item
+
+    # Union
+    inventory: [AllItems]
+    inventoryItem(id: ID!): [AllItems]
 }
 
 type Mutation {
@@ -11,7 +19,14 @@ type Mutation {
     deleteBook(filters: DeleteBookPayloadInput): Book
 }
 
-type Book {
+union AllItems = Book | Author
+
+interface Item {
+    id: ID
+    title: String
+}
+
+type Book implements Item{
     id: ID
     description: String
     title: String
@@ -49,9 +64,9 @@ input DeleteBookPayloadInput {
     id: ID!
 }
 
-type Author {
+type Author implements Item {
     id: ID
-    name: String
+    title: String
     age: Int
     books: [Book]
 }
@@ -91,3 +106,4 @@ input AggregationInput {
     type: AggregationEnum
     field: String
 }
+

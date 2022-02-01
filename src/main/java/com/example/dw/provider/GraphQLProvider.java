@@ -12,6 +12,7 @@ import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrume
 import graphql.language.*;
 import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLSchema;
+import graphql.schema.TypeResolver;
 import graphql.schema.idl.*;
 import lombok.extern.slf4j.Slf4j;
 import org.dataloader.DataLoader;
@@ -142,8 +143,8 @@ public class GraphQLProvider {
                     String fieldName = fieldDefinition.getName();
                     boolean isMultiple = fieldDefinition.getType() instanceof ListType;
                     String objectType = getType(fieldDefinition.getType());
-                    System.out.println(fieldName + '\t' + isMultiple + '\t' + objectType);
-                    System.out.println();
+                    //System.out.println(fieldName + '\t' + isMultiple + '\t' + objectType);
+                    //System.out.println();
                 }
             }
         }
@@ -165,11 +166,23 @@ public class GraphQLProvider {
          }
          */
 
+        /*
+        return RuntimeWiring.newRuntimeWiring()
+                .type("AllItems", typeWriting -> typeWriting.typeResolver(t))
+                .build();
+         */
+
         // Method-1
         GraphQLCodeRegistry.Builder codeRegistryBuilder = GraphQLCodeRegistry.newCodeRegistry();
-        codeRegistryBuilder = graphQLDataFetchers.generateQueryFetchers(codeRegistryBuilder);
+        codeRegistryBuilder = graphQLDataFetchers.generateFetchers(codeRegistryBuilder);
         codeRegistryBuilder = graphQLDataFetchers.generateMutationFetchers(codeRegistryBuilder);
-        return RuntimeWiring.newRuntimeWiring().codeRegistry(codeRegistryBuilder).build();
+        TypeResolver typeResolver = graphQLDataFetchers.generateTypeResolvers();
+
+        return RuntimeWiring.newRuntimeWiring()
+                .codeRegistry(codeRegistryBuilder)
+                .type("Item", typeWriting -> typeWriting.typeResolver(typeResolver))
+                .type("AllItems", typeWriting -> typeWriting.typeResolver(typeResolver))
+                .build();
 
         // Method-2
         /*

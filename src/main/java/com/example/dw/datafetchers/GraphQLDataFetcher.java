@@ -5,8 +5,10 @@ import com.example.dw.entity.Author;
 import com.example.dw.service.BookService;
 import com.example.dw.service.AuthorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.TypeResolutionEnvironment;
 import graphql.schema.*;
 import graphql.language.Field;
+import graphql.schema.idl.TypeRuntimeWiring;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -383,17 +385,64 @@ public class GraphQLDataFetcher {
                 CompletableFuture.supplyAsync(() -> authorService.findByIds(ids.stream().distinct().collect(Collectors.toList())));
     }
 
+    public DataFetcher getAllItemsDataFetcher() {
+        return dataFetchingEnvironment -> {
+            List<Book> books = bookService.findAll();
+            List<Author> authors = authorService.findAll();
+            List<Object> items = new ArrayList<>();
+            for (Object o: books)
+                items.add(o);
+            for (Object o: authors)
+                items.add(o);
+            for (Object o: items)
+                System.out.println(o.toString());
+            return items;
+        };
+    }
+
+
+    public DataFetcher getItemDataFetcher() {
+        return dataFetchingEnvironment -> {
+            printDataFetchingEnv(dataFetchingEnvironment);
+            Long id = Long.parseLong(dataFetchingEnvironment.getArgument("id"));
+            Book book = bookService.findById(id);
+            Author author = authorService.findById(id);
+            List<Object> result = new ArrayList<>();
+            result.add(book); result.add(author);
+            return result;
+        };
+    }
+
     public GraphQLCodeRegistry.Builder generateBookFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "books"), this.getAllBooksDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "book"), this.getBookByIdDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksWithFilter"), this.getBooksByFilterDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksAggregator"), this.booksAggregator());
-        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Mutation", "createBook"), this.createBook());
         return codeRegistryBuilder;
     }
 
     public GraphQLCodeRegistry.Builder generateAuthorFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Book", "author"), this.getAuthorDataFetcherWithDataLoader());
+        return codeRegistryBuilder;
+    }
+
+    public TypeResolver generateTypeResolvers() {
+        TypeResolver t = typeResolutionEnvironment -> {
+            Object javaObject = typeResolutionEnvironment.getObject();
+            if (javaObject instanceof Book) {
+                return typeResolutionEnvironment.getSchema().getObjectType("Book");
+            } else {
+                return typeResolutionEnvironment.getSchema().getObjectType("Author");
+            }
+        };
+        return t;
+    }
+
+    public GraphQLCodeRegistry.Builder generateInterfaceFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "item"), this.getItemDataFetcher());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "items"), this.getAllItemsDataFetcher());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "inventoryItem"), this.getItemDataFetcher());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "inventory"), this.getAllItemsDataFetcher());
         return codeRegistryBuilder;
     }
 
@@ -404,9 +453,10 @@ public class GraphQLDataFetcher {
         return codeRegistryBuilder;
     }
 
-    public GraphQLCodeRegistry.Builder generateQueryFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
+    public GraphQLCodeRegistry.Builder generateFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
         codeRegistryBuilder = generateAuthorFetchers(codeRegistryBuilder);
         codeRegistryBuilder = generateBookFetchers(codeRegistryBuilder);
+        codeRegistryBuilder = generateInterfaceFetchers(codeRegistryBuilder);
         codeRegistryBuilder = generateMutationFetchers(codeRegistryBuilder);
         return codeRegistryBuilder;
     }
