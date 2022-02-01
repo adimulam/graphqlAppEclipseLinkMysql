@@ -74,7 +74,7 @@ Add such multiple objects.
     title
     authorId
     author {
-      name
+      title
     }
   }
 }
@@ -380,6 +380,76 @@ mutation deleteBook{
     	id:4
   }) {
     id
+  }
+}
+```
+
+14. Interfaces:
+```
+query {
+  items {
+    	__typename
+	id
+    	title
+    	... on Book {
+          price
+      	}
+    	... on Author {
+       	  age
+      }
+  }
+}
+```
+And
+```
+query {
+  item(id:1) {
+    __typename
+    id
+    title
+    ... on Book {
+      price
+    }
+    ... on Author {
+      age
+    }
+  }
+}
+```
+
+15. Unions:
+```
+query {
+  inventory {
+    	__typename
+    	... on Book {
+          id
+          title
+          description
+          price
+        }
+    	... on Author {
+          id
+          title
+          age
+        }
+  }
+}
+```
+And
+```
+query {
+  inventoryItem(id:1) {
+    ... on Book {
+      id
+      title
+      price
+    }
+    ... on Author {
+      id
+      title
+      age
+    }
   }
 }
 ```
