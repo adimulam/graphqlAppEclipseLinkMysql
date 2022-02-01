@@ -498,5 +498,9 @@ Query:
 
 3. With Left Join in the resolver itself:
 ```
+SELECT * FROM book LEFT JOIN author ON book.authorId = author.id;
 
+1	1	Programming in C	200	C Programming		C	NULL	1	25	Bob	Bob
+2	2	Programming in Java	300	Java Programming	Java	NULL	2	30	Sam	Sam
+3	3	GraphQL API developer	1200	GraphQL Practical	JS	NULL	3	35	Jim	Jim
 ```
