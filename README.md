@@ -74,7 +74,7 @@ Add such multiple objects.
     title
     authorId
     author {
-      name
+      title
     }
   }
 }
@@ -382,4 +382,125 @@ mutation deleteBook{
     id
   }
 }
+```
+
+14. Interfaces:
+```
+query {
+  items {
+    	__typename
+	id
+    	title
+    	... on Book {
+          price
+      	}
+    	... on Author {
+       	  age
+      }
+  }
+}
+```
+And
+```
+query {
+  item(id:1) {
+    __typename
+    id
+    title
+    ... on Book {
+      price
+    }
+    ... on Author {
+      age
+    }
+  }
+}
+```
+
+15. Unions:
+```
+query {
+  inventory {
+    	__typename
+    	... on Book {
+          id
+          title
+          description
+          price
+        }
+    	... on Author {
+          id
+          title
+          age
+        }
+  }
+}
+```
+And
+```
+query {
+  inventoryItem(id:1) {
+    ... on Book {
+      id
+      title
+      price
+    }
+    ... on Author {
+      id
+      title
+      age
+    }
+  }
+}
+```
+
+In depth Data Loader Analysis:
+Query:
+```
+{
+  books {
+    id
+    title
+    authorId
+    author {
+      title
+    }
+    description
+    countryOfOrigin
+  }
+}
+```
+
+1. Without dataloader:
+```
+2022-02-01T07:02:27.919450Z	   55 Query	SET SQL_SELECT_LIMIT=DEFAULT
+2022-02-01T07:02:27.921998Z	   55 Query	SELECT id, authorId, description, price, title, AUTH_id FROM book ORDER BY id
+2022-02-01T07:02:27.926987Z	   55 Query	SHOW WARNINGS
+2022-02-01T07:02:27.945256Z	   55 Query	SELECT id, authorId, description, price, title, AUTH_id FROM book ORDER BY id
+2022-02-01T07:02:27.949239Z	   55 Query	SHOW WARNINGS
+2022-02-01T07:02:28.058968Z	   55 Query	SELECT id, age, title FROM author WHERE (id = 1)
+2022-02-01T07:02:28.061982Z	   55 Query	SHOW WARNINGS
+2022-02-01T07:02:28.069665Z	   55 Query	SELECT id, age, title FROM author WHERE (id = 2)
+2022-02-01T07:02:28.071944Z	   55 Query	SHOW WARNINGS
+2022-02-01T07:02:28.076526Z	   55 Query	SELECT id, age, title FROM author WHERE (id = 3)
+2022-02-01T07:02:28.080367Z	   55 Query	SHOW WARNINGS
+```
+
+2. With Dataloader:
+```
+2022-02-01T06:53:10.246826Z	   49 Query	SELECT id, authorId, description, price, title, AUTH_id FROM book ORDER BY id
+2022-02-01T06:53:10.250720Z	   49 Query	SHOW WARNINGS
+2022-02-01T06:53:10.255832Z	   49 Query	SELECT id, authorId, description, price, title, AUTH_id FROM book ORDER BY id
+2022-02-01T06:53:10.261577Z	   49 Query	SHOW WARNINGS
+2022-02-01T06:53:10.302831Z	   49 Query	SELECT id, age, title FROM author WHERE (id IN (1,2,3))
+2022-02-01T06:53:10.306298Z	   49 Query	SHOW WARNINGS
+```
+
+3. With Left Join in the resolver itself:
+```
+SELECT * FROM book LEFT JOIN author ON book.authorId = author.id;
+
+1	1	Programming in C	200	C Programming		C	NULL	1	25	Bob	Bob
+2	2	Programming in Java	300	Java Programming	Java	NULL	2	30	Sam	Sam
+3	3	GraphQL API developer	1200	GraphQL Practical	JS	NULL	3	35	Jim	Jim
 ```
