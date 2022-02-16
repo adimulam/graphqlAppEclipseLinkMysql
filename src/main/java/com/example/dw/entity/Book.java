@@ -2,11 +2,13 @@ package com.example.dw.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
 @Setter
 @Getter
+@ToString
 @Table(name = "book")
 @Entity
 @NamedQueries({
@@ -21,7 +23,6 @@ import javax.persistence.*;
         @NamedQuery(name = "Book.findAggregateAvg", query = "select Avg(b.price) from com.example.dw.entity.Book b"),
         @NamedQuery(name = "Book.findAggregateSum", query = "select Sum(b.price) from com.example.dw.entity.Book b"),
         @NamedQuery(name = "Book.findAggregateCount", query = "select Count(b.price) from com.example.dw.entity.Book b")
-
 
 })
 public class Book {

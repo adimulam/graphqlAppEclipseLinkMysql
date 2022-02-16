@@ -2,13 +2,12 @@ package com.example.dw.datafetchers;
 
 import com.example.dw.entity.Book;
 import com.example.dw.entity.Author;
-import com.example.dw.service.BookService;
-import com.example.dw.service.AuthorService;
+import com.example.dw.eclipselink.service.BookService;
+import com.example.dw.eclipselink.service.AuthorService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.TypeResolutionEnvironment;
 import graphql.schema.*;
 import graphql.language.Field;
-import graphql.schema.idl.TypeRuntimeWiring;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -19,11 +18,14 @@ import org.dataloader.DataLoaderRegistry;
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class GraphQLDataFetcher {
 
@@ -305,9 +307,20 @@ public class GraphQLDataFetcher {
         return objectMap;
     }
 
+    public DataFetcher getHeroDataFetcher() {
+        return  dataFetchingEnvironment -> {
+            Client client = ClientBuilder.newClient();
+            Response response = client.target("http://localhost:9080/heroes/")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get();
+            List<Object> resultObjs = response.readEntity(new GenericType<List<Object>>() {});
+            return resultObjs;
+        };
+    }
+
     public DataFetcher getBookByIdDataFetcher() {
         return dataFetchingEnvironment -> {
-            printDataFetchingEnv(dataFetchingEnvironment);
+            //printDataFetchingEnv(dataFetchingEnvironment);
             String bookId = dataFetchingEnvironment.getArgument("id");
             Book book = bookService.findById(Long.parseLong(bookId)); //ds1 - mysqlDB
 
@@ -321,28 +334,136 @@ public class GraphQLDataFetcher {
         };
     }
 
-    public DataFetcher getAllBooksDataFetcher() {
-        return dataFetchingEnvironment -> {
-            List<Map<String, Object>> result = new ArrayList<>();
-            printDataFetchingEnv(dataFetchingEnvironment);
-            System.out.println(bookService.findAll().getClass());
-            //return bookService.findAll();
-            List<Book> books = bookService.findAll();
-            Client client = ClientBuilder.newClient();
-            for (Book book: books) {
-                Response response = client.target("http://localhost:9090/books/id/")
-                        .queryParam("id", book.getId())
-                        .request(MediaType.APPLICATION_JSON)
-                        .get();
-                result.add(prepareResponsePayload(book, response));
-            }
-            return result;
-        };
+    private List<String> getPages(List<Long> bookIds) throws JsonProcessingException {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target("http://localhost:9090/books/ids/")
+                .queryParam("ids", StringUtils.join(bookIds, ','))
+                .request(MediaType.APPLICATION_JSON)
+                .get();
+        List<String> results = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        List<Object> resultObjs = response.readEntity(new GenericType<List<Object>>() {});
+        for (Object o : resultObjs) {
+            String jsonResponse = mapper.writeValueAsString(o);
+            JSONObject resultJson = createJSONObject(jsonResponse);
+            results.add(resultJson.get("pages").toString());
+        }
+        return results;
     }
 
+    private List<String> getContact(List<Long> bookIds) throws JsonProcessingException {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target("http://localhost:9090/books/ids/")
+                .queryParam("ids", StringUtils.join(bookIds, ','))
+                .request(MediaType.APPLICATION_JSON)
+                .get();
+        List<String> results = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        List<Object> resultObjs = response.readEntity(new GenericType<List<Object>>() {});
+        for (Object o : resultObjs) {
+            String jsonResponse = mapper.writeValueAsString(o);
+            JSONObject resultJson = createJSONObject(jsonResponse);
+            results.add(resultJson.get("contact").toString());
+        }
+        return results;
+    }
+
+    private List<String> getPublisher(List<Long> bookIds) throws JsonProcessingException {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target("http://localhost:9090/books/ids/")
+                .queryParam("ids", StringUtils.join(bookIds, ','))
+                .request(MediaType.APPLICATION_JSON)
+                .get();
+        List<String> results = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        List<Object> resultObjs = response.readEntity(new GenericType<List<Object>>() {});
+        for (Object o : resultObjs) {
+            String jsonResponse = mapper.writeValueAsString(o);
+            JSONObject resultJson = createJSONObject(jsonResponse);
+            results.add(resultJson.get("publisher").toString());
+        }
+        return results;
+    }
+
+    private List<String> getCountryOfOrigin(List<Long> bookIds) throws JsonProcessingException {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target("http://localhost:9090/books/ids/")
+                .queryParam("ids", StringUtils.join(bookIds, ','))
+                .request(MediaType.APPLICATION_JSON)
+                .get();
+        List<String> results = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        List<Object> resultObjs = response.readEntity(new GenericType<List<Object>>() {});
+        for (Object o : resultObjs) {
+            Map<String, String> objectMap = new HashMap<>();
+            String jsonResponse = mapper.writeValueAsString(o);
+            JSONObject resultJson = createJSONObject(jsonResponse);
+            //System.out.println(resultJson.get("countryOfOrigin"));
+            //objectMap.put("countryOfOrigin", resultJson.get("countryOfOrigin").toString());
+            //objectMap.put("publisher", resultJson.get("publisher"));
+            //objectMap.put("contact", resultJson.get("contact"));
+            //objectMap.put("numOfPages", resultJson.get("pages"));
+            results.add(resultJson.get("countryOfOrigin").toString());
+            //results.add(resultJson.get("publisher").toString());
+            //results.add(resultJson.get("contact").toString());
+            //results.add(resultJson.get("pages").toString());
+        }
+        return results;
+    }
+
+    private List<Map<String, String>> getAdditionalData(List<Long> bookIds) throws JsonProcessingException {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target("http://localhost:9090/books/additionalInfo/ids/")
+                .queryParam("ids", StringUtils.join(bookIds, ','))
+                .request(MediaType.APPLICATION_JSON)
+                .get();
+        List<Map<String,String>> results = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        List<Object> resultObjs = response.readEntity(new GenericType<List<Object>>() {});
+        for (Object o : resultObjs) {
+            Map<String, String> objectMap = new HashMap<>();
+            String jsonResponse = mapper.writeValueAsString(o);
+            JSONObject resultJson = createJSONObject(jsonResponse);
+            objectMap.put("stockAvailable", resultJson.get("stock").toString());
+            objectMap.put("copiesSold", resultJson.get("sold").toString());
+            objectMap.put("yearPublished", resultJson.get("year").toString());
+            results.add(objectMap);
+        }
+        return results;
+    }
+
+    private List<Map<String, String>> getRestFields(List<Long> bookIds) throws JsonProcessingException {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target("http://localhost:9090/books/ids/")
+                .queryParam("ids", StringUtils.join(bookIds, ','))
+                .request(MediaType.APPLICATION_JSON)
+                .get();
+        List<Map<String, String>> results = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        List<Object> resultObjs = response.readEntity(new GenericType<List<Object>>() {});
+        for (Object o : resultObjs) {
+            //System.out.println(o.toString());
+            Map<String, String> objectMap = new HashMap<>();
+            String jsonResponse = mapper.writeValueAsString(o);
+            JSONObject resultJson = createJSONObject(jsonResponse);
+            objectMap.put("countryOfOrigin", resultJson.get("countryOfOrigin").toString());
+            //objectMap.put("publisher", resultJson.get("publisher"));
+            //objectMap.put("contact", resultJson.get("contact"));
+            //objectMap.put("numOfPages", resultJson.get("pages"));
+            results.add(objectMap);
+        }
+        return results;
+    }
+
+    public DataFetcher getAllBooksDataFetcher() {
+        return dataFetchingEnvironment -> bookService.findAll();
+        //return dataFetchingEnvironment -> bookService.findWithAuthor();
+    }
+
+    /*
     public DataFetcher getBooksByFilterDataFetcher() {
         return dataFetchingEnvironment -> {
-            printDataFetchingEnv(dataFetchingEnvironment);
+            //printDataFetchingEnv(dataFetchingEnvironment);
             List<Map<String, Object>> result = new ArrayList<>();
             Object filters = dataFetchingEnvironment.getArgument("filters");
             Object pagination = dataFetchingEnvironment.getArgument("pagination");
@@ -367,22 +488,157 @@ public class GraphQLDataFetcher {
             return bookService.findAggregation(aggregation).get("result");
         };
     }
+     */
 
     public DataFetcher getAuthorDataFetcherWithDataLoader() {
         return dataFetchingEnvironment -> {
-            printDataFetchingEnv(dataFetchingEnvironment);
-            //Book book = dataFetchingEnvironment.getSource();
-            Map<String, Object> map = dataFetchingEnvironment.getSource();
-            Long authorId = (Long)map.get("authorId");
+            //printDataFetchingEnv(dataFetchingEnvironment);
+            Book book = dataFetchingEnvironment.getSource();
+            //Map<String, Object> map = dataFetchingEnvironment.getSource();
+            //System.out.println("GetAuthorDataFetcher start");
+            //for (Map.Entry<String, Object> m : map.entrySet()) {
+            //    System.out.println(m.getKey() + " " + m.getValue());
+            //}
+            //System.out.println("GetAuthorDataFetcher end");
+            //Long authorId = (Long)map.get("AUTH_id");
+            Long authorId = book.getAuthorId();
             DataLoaderRegistry dataLoaderRegistry = dataFetchingEnvironment.getDataLoaderRegistry();
             DataLoader<Long, Author> authorLoader = dataLoaderRegistry.getDataLoader("authors");
+            System.out.println("Batching request for " + authorId);
             return authorLoader.load(authorId);
+        };
+    }
+
+
+    public DataFetcher getAdditionalDetailsDataFetcher() {
+        return dataFetchingEnvironment -> {
+            Book book = dataFetchingEnvironment.getSource();
+            DataLoaderRegistry dataLoaderRegistry = dataFetchingEnvironment.getDataLoaderRegistry();
+            DataLoader<Long, Author> authorLoader = dataLoaderRegistry.getDataLoader("additionalDetails");
+            return authorLoader.load(book.getId());
+        };
+    }
+
+    public DataFetcher getCountryDataFetcher() {
+        return dataFetchingEnvironment -> {
+            Book book = dataFetchingEnvironment.getSource();
+            DataLoaderRegistry dataLoaderRegistry = dataFetchingEnvironment.getDataLoaderRegistry();
+            DataLoader<Long, Author> restLoader = dataLoaderRegistry.getDataLoader("country");
+            return restLoader.load(book.getId());
+        };
+    }
+
+    public DataFetcher getPublisherDataFetcher() {
+        return dataFetchingEnvironment -> {
+            Book book = dataFetchingEnvironment.getSource();
+            DataLoaderRegistry dataLoaderRegistry = dataFetchingEnvironment.getDataLoaderRegistry();
+            DataLoader<Long, Author> restLoader = dataLoaderRegistry.getDataLoader("publisher");
+            return restLoader.load(book.getId());
+        };
+    }
+
+    public DataFetcher getContactDataFetcher() {
+        return dataFetchingEnvironment -> {
+            Book book = dataFetchingEnvironment.getSource();
+            DataLoaderRegistry dataLoaderRegistry = dataFetchingEnvironment.getDataLoaderRegistry();
+            DataLoader<Long, Author> restLoader = dataLoaderRegistry.getDataLoader("contact");
+            return restLoader.load(book.getId());
+        };
+    }
+
+    public DataFetcher getPagesDataFetcher() {
+        return dataFetchingEnvironment -> {
+            Book book = dataFetchingEnvironment.getSource();
+            DataLoaderRegistry dataLoaderRegistry = dataFetchingEnvironment.getDataLoaderRegistry();
+            DataLoader<Long, Author> restLoader = dataLoaderRegistry.getDataLoader("pages");
+            return restLoader.load(book.getId());
         };
     }
 
     public BatchLoader<Long, Author> authorBatchLoader() {
         return ids ->
-                CompletableFuture.supplyAsync(() -> authorService.findByIds(ids.stream().distinct().collect(Collectors.toList())));
+                CompletableFuture.supplyAsync(() -> {
+                    System.out.println("In author batch loader");
+                    return authorService
+                            .findByIds(ids.stream().
+                                    collect(Collectors.toList()));
+                });
+    }
+
+    public BatchLoader<Long, Map<String, String>> restBatchLoader() {
+        return ids ->
+                CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return getRestFields(ids.stream().distinct().collect(Collectors.toList()));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                });
+    }
+
+    public BatchLoader<Long, String> getCountryBatchLoader() {
+        return ids ->
+                CompletableFuture.supplyAsync(() -> {
+                    System.out.println("Sending REST request to get book CountryOfOrigin");
+                    try {
+                        return getCountryOfOrigin(ids.stream().distinct().collect(Collectors.toList()));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                });
+    }
+    public BatchLoader<Long, String> getPublisherBatchLoader() {
+        return ids ->
+                CompletableFuture.supplyAsync(() -> {
+                    System.out.println("Sending REST request to get book publisher");
+                    try {
+                        return getPublisher(ids.stream().distinct().collect(Collectors.toList()));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                });
+    }
+
+    public BatchLoader<Long, String> getContactBatchLoader() {
+        return ids ->
+                CompletableFuture.supplyAsync(() -> {
+                    System.out.println("Sending REST request to get book contact");
+                    try {
+                        return getContact(ids.stream().distinct().collect(Collectors.toList()));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                });
+    }
+
+    public BatchLoader<Long, String> getPagesBatchLoader() {
+        return ids ->
+                CompletableFuture.supplyAsync(() -> {
+                    System.out.println("Sending REST request to get book pages");
+                    try {
+                        return getPages(ids.stream().distinct().collect(Collectors.toList()));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                });
+    }
+
+    public BatchLoader<Long, Map<String,String>> getAdditionalDetailsBatchLoader() {
+        return ids ->
+                CompletableFuture.supplyAsync(() -> {
+                    System.out.println("Sending REST request to get book additional data");
+                    try {
+                        return getAdditionalData(ids.stream().distinct().collect(Collectors.toList()));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                });
     }
 
     public DataFetcher getAllItemsDataFetcher() {
@@ -403,7 +659,6 @@ public class GraphQLDataFetcher {
 
     public DataFetcher getItemDataFetcher() {
         return dataFetchingEnvironment -> {
-            printDataFetchingEnv(dataFetchingEnvironment);
             Long id = Long.parseLong(dataFetchingEnvironment.getArgument("id"));
             Book book = bookService.findById(id);
             Author author = authorService.findById(id);
@@ -416,13 +671,17 @@ public class GraphQLDataFetcher {
     public GraphQLCodeRegistry.Builder generateBookFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "books"), this.getAllBooksDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "book"), this.getBookByIdDataFetcher());
-        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksWithFilter"), this.getBooksByFilterDataFetcher());
-        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksAggregator"), this.booksAggregator());
+        //codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksWithFilter"), this.getBooksByFilterDataFetcher());
+        //codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksAggregator"), this.booksAggregator());
         return codeRegistryBuilder;
     }
 
     public GraphQLCodeRegistry.Builder generateAuthorFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Book", "author"), this.getAuthorDataFetcherWithDataLoader());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Book", "countryOfOrigin"), this.getCountryDataFetcher());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Book", "publisher"), this.getPublisherDataFetcher());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Book", "contact"), this.getContactDataFetcher());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Book", "numOfPages"), this.getPagesDataFetcher());
         return codeRegistryBuilder;
     }
 
@@ -443,6 +702,7 @@ public class GraphQLDataFetcher {
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "items"), this.getAllItemsDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "inventoryItem"), this.getItemDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "inventory"), this.getAllItemsDataFetcher());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Book", "additionalDetails"), this.getAdditionalDetailsDataFetcher());
         return codeRegistryBuilder;
     }
 
@@ -453,11 +713,17 @@ public class GraphQLDataFetcher {
         return codeRegistryBuilder;
     }
 
+    public GraphQLCodeRegistry.Builder generateHeroFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "heroes"), this.getHeroDataFetcher());
+        return codeRegistryBuilder;
+    }
+
     public GraphQLCodeRegistry.Builder generateFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
         codeRegistryBuilder = generateAuthorFetchers(codeRegistryBuilder);
         codeRegistryBuilder = generateBookFetchers(codeRegistryBuilder);
         codeRegistryBuilder = generateInterfaceFetchers(codeRegistryBuilder);
         codeRegistryBuilder = generateMutationFetchers(codeRegistryBuilder);
+        codeRegistryBuilder = generateHeroFetchers(codeRegistryBuilder);
         return codeRegistryBuilder;
     }
 }

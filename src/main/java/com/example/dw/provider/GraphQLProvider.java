@@ -21,6 +21,7 @@ import org.dataloader.DataLoaderOptions;
 import org.dataloader.DataLoaderRegistry;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -62,6 +63,27 @@ public class GraphQLProvider {
         DataLoader<Long, Author> authorDataLoader = DataLoaderFactory
                 .newDataLoader(graphQLDataFetchers.authorBatchLoader(), options);
         dataLoaderRegistry.register("authors", authorDataLoader);
+
+        DataLoader<Long, String> countryDataLoader = DataLoaderFactory
+                .newDataLoader(graphQLDataFetchers.getCountryBatchLoader(), options);
+        dataLoaderRegistry.register("country", countryDataLoader);
+
+        DataLoader<Long, String> publisherDataLoader = DataLoaderFactory
+                .newDataLoader(graphQLDataFetchers.getPublisherBatchLoader(), options);
+        dataLoaderRegistry.register("publisher", publisherDataLoader);
+
+        DataLoader<Long, String> contactDataLoader = DataLoaderFactory
+                .newDataLoader(graphQLDataFetchers.getContactBatchLoader(), options);
+        dataLoaderRegistry.register("contact", contactDataLoader);
+
+        DataLoader<Long, String> pagesDataLoader = DataLoaderFactory
+                .newDataLoader(graphQLDataFetchers.getPagesBatchLoader(), options);
+        dataLoaderRegistry.register("pages", pagesDataLoader);
+
+        DataLoader<Long, Map<String,String>> additionalDetailsDataLoader = DataLoaderFactory
+                .newDataLoader(graphQLDataFetchers.getAdditionalDetailsBatchLoader(), options);
+        dataLoaderRegistry.register("additionalDetails", additionalDetailsDataLoader);
+
         log.info("Registered data loaders");
     }
 

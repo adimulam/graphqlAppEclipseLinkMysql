@@ -3,6 +3,7 @@ type Query {
     book(id: ID): Book
     booksWithFilter(filters: BookFilter, pagination: Pagination): [Book]
     booksAggregator(filters: BookFilter, aggregation:AggregationInput): Float
+    heroes: [Hero]
 
     # Interface
     items: [Item]
@@ -26,6 +27,11 @@ interface Item {
     title: String
 }
 
+type Hero {
+    name: String!
+    friends: [Hero]
+}
+
 type Book implements Item{
     id: ID
     description: String
@@ -37,6 +43,14 @@ type Book implements Item{
     publisher: String
     contact: String
     numOfPages: Int
+    additionalDetails: AdditionalDetails
+    _allow_: String
+}
+
+type AdditionalDetails {
+    stockAvailable: Int
+    copiesSold: Int
+    yearPublished: Int
 }
 
 input CreateBookPayloadInput {

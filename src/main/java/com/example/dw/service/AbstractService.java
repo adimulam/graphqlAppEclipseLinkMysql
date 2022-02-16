@@ -26,6 +26,7 @@ public abstract class AbstractService<T> {
     }
 
     public <ID> T findById(final ID id) {
+        System.out.println("In findById()");
         return dao.findById(entityClass, id);
     }
 

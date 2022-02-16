@@ -1,9 +1,6 @@
 package com.example.dw.service;
 
-import com.example.dw.datafetchers.BookFilter;
-import com.example.dw.datafetchers.Pagination;
 import com.example.dw.datafetchers.ResolverContract;
-import com.example.dw.datafetchers.SortByInput;
 import com.example.dw.entity.Book;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +36,9 @@ public class BookService extends AbstractService<Book> implements ResolverContra
         return jsonObject;
     }
 
+    public List<Book> findWithAuthor() {
+        return dao.findWithFilter(entityClass, "Book.findWithAuthor");
+    }
     public List<Book> findBookByFilter(Object filter, Object pagination, Object distinct, Object sort) throws JsonProcessingException {
         int limit = 0;
         if (filter != null) {

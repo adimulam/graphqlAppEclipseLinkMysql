@@ -58,8 +58,6 @@ public class DaoImpl implements Dao {
     public <T> List<T> find(final Class<T> clazz, final String namedQuery,
                             final Map<String, Object> paramsMap, int limit) {
         final Query query = fillNamedParametersQuery(clazz, namedQuery, paramsMap);
-        System.out.print(query.toString());
-        System.out.println(paramsMap);
         if (limit > 0) {
             return query.setMaxResults(limit).getResultList();
         }
@@ -77,6 +75,11 @@ public class DaoImpl implements Dao {
     public <T> float findAggregate(final Class<T> clazz, final String namedQuery) {
         float result = ((Number)entityManager.get().createNamedQuery(namedQuery).getSingleResult()).floatValue();
         return result;
+    }
+
+    @Override
+    public <T> List<T> findWithFilter(Class<T> clazz, String namedQuery) {
+        return entityManager.get().createNamedQuery(namedQuery).getResultList();
     }
 
 }

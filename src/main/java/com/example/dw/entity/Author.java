@@ -1,9 +1,14 @@
 package com.example.dw.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import javax.persistence.*;
 import java.util.List;
 
 @Table(name = "author")
+@ToString
 @Entity
 @NamedQueries({
         @NamedQuery(name = "Author.findByIds", query = "SELECT a FROM com.example.dw.entity.Author a WHERE a.id IN :ids")
@@ -44,6 +49,7 @@ public class Author {
         this.id = id;
     }
 
+    @Setter @Getter
     @OneToMany(mappedBy = "auth")
     private List<Book> books;
 }

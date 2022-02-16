@@ -11,6 +11,12 @@
             <property name="eclipselink.logging.level.sql" value="ALL"/>
             <property name="javax.persistence.schema-generation.database.action" value="create"/>
             <property name="eclipselink.ddl-generation" value="create-tables" />
+
+            <property name="eclipselink.jdbc.url" value="jdbc:mysql://localhost:3306/newdb" />
+            <property name="eclipselink.jdbc.user" value="root" />
+            <property name="eclipselink.jdbc.password" value="Welcome_123" />
+            <property name="eclipselink.jdbc.driver" value="com.mysql.jdbc.Driver" />
+
         </properties>
     </persistence-unit>
 </persistence>
