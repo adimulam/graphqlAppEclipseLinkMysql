@@ -2,12 +2,13 @@ package com.example.dw.datafetchers;
 
 import com.example.dw.entity.Book;
 import com.example.dw.entity.Author;
-import com.example.dw.eclipselink.service.BookService;
-import com.example.dw.eclipselink.service.AuthorService;
+import com.example.dw.eclipselink.service.BookServiceEclipseLink;
+import com.example.dw.eclipselink.service.AuthorServiceEclipseLink;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.schema.*;
 import graphql.language.Field;
+import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -27,15 +28,16 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+@Slf4j
 public class GraphQLDataFetcher {
 
-    private final BookService bookService;
-    private final AuthorService authorService;
+    private final BookServiceEclipseLink bookServiceEclipseLink;
+    private final AuthorServiceEclipseLink authorServiceEclipseLink;
 
     @Inject
-    public GraphQLDataFetcher(BookService bookService, AuthorService authorService) {
-        this.bookService = bookService;
-        this.authorService = authorService;
+    public GraphQLDataFetcher(BookServiceEclipseLink bookServiceEclipseLink, AuthorServiceEclipseLink authorServiceEclipseLink) {
+        this.bookServiceEclipseLink = bookServiceEclipseLink;
+        this.authorServiceEclipseLink = authorServiceEclipseLink;
     }
 
     /* Utilities */
@@ -258,7 +260,7 @@ public class GraphQLDataFetcher {
                 Object payload = dataFetchingEnvironment.getArgument("filters");
                 Book book = objectMapper.convertValue(payload, Book.class);
                 System.out.println(payload);
-                return bookService.save(book);
+                return bookServiceEclipseLink.save(book);
             }
             return null;
         };
@@ -271,7 +273,7 @@ public class GraphQLDataFetcher {
                 Object payload = dataFetchingEnvironment.getArgument("filters");
                 Book book = objectMapper.convertValue(payload, Book.class);
                 System.out.println(payload);
-                return bookService.update(book);
+                return bookServiceEclipseLink.update(book);
             }
             return null;
         };
@@ -284,19 +286,19 @@ public class GraphQLDataFetcher {
                 Object payload = dataFetchingEnvironment.getArgument("filters");
                 Book book = objectMapper.convertValue(payload, Book.class);
                 System.out.println(payload);
-                return bookService.delete(book.getId());
+                return bookServiceEclipseLink.delete(book.getId());
             }
             return null;
         };
     }
 
-    private Map<String, Object> prepareResponsePayload(Book book, Response response) {
+    private Map<String, Object> prepareResponsePayload(Map<String, Object> book, Response response) {
         Map<String, Object> objectMap = new HashMap<>();
-        objectMap.put("id", book.getId());
-        objectMap.put("price", book.getPrice());
-        objectMap.put("description", book.getDescription());
-        objectMap.put("title", book.getTitle());
-        objectMap.put("authorId", book.getAuthorId());
+        objectMap.put("id", book.get("id"));
+        objectMap.put("price", book.get("price"));
+        objectMap.put("description", book.get("description"));
+        objectMap.put("title", book.get("title"));
+        objectMap.put("authorId", book.get("authorId"));
         if (response != null) {
             JSONObject jsonResponse = createJSONObject(response.readEntity(String.class));
             objectMap.put("countryOfOrigin", jsonResponse.get("countryOfOrigin"));
@@ -322,7 +324,7 @@ public class GraphQLDataFetcher {
         return dataFetchingEnvironment -> {
             //printDataFetchingEnv(dataFetchingEnvironment);
             String bookId = dataFetchingEnvironment.getArgument("id");
-            Book book = bookService.findById(Long.parseLong(bookId)); //ds1 - mysqlDB
+            Map<String, Object> book = bookServiceEclipseLink.findById(Long.parseLong(bookId)); //ds1 - mysqlDB
 
             // REST
             Client client = ClientBuilder.newClient();
@@ -456,8 +458,10 @@ public class GraphQLDataFetcher {
     }
 
     public DataFetcher getAllBooksDataFetcher() {
-        return dataFetchingEnvironment -> bookService.findAll();
-        //return dataFetchingEnvironment -> bookService.findWithAuthor();
+        //return dataFetchingEnvironment -> bookServiceEclipseLink.findAll();
+        //return dataFetchingEnvironment -> bookServiceEclipseLink.findAllRecords();
+        //return dataFetchingEnvironment -> bookServiceEclipseLink.findAllRecords();
+        return dataFetchingEnvironment -> bookServiceEclipseLink.findAllEntries();
     }
 
     /*
@@ -493,18 +497,18 @@ public class GraphQLDataFetcher {
     public DataFetcher getAuthorDataFetcherWithDataLoader() {
         return dataFetchingEnvironment -> {
             //printDataFetchingEnv(dataFetchingEnvironment);
-            Book book = dataFetchingEnvironment.getSource();
-            //Map<String, Object> map = dataFetchingEnvironment.getSource();
+            //Book book = dataFetchingEnvironment.getSource();
+            Map<String, Object> map = dataFetchingEnvironment.getSource();
             //System.out.println("GetAuthorDataFetcher start");
             //for (Map.Entry<String, Object> m : map.entrySet()) {
             //    System.out.println(m.getKey() + " " + m.getValue());
             //}
             //System.out.println("GetAuthorDataFetcher end");
-            //Long authorId = (Long)map.get("AUTH_id");
-            Long authorId = book.getAuthorId();
+            Long authorId = Long.parseLong(map.get("authorId").toString());
+            //Long authorId = book.getAuthorId();
             DataLoaderRegistry dataLoaderRegistry = dataFetchingEnvironment.getDataLoaderRegistry();
             DataLoader<Long, Author> authorLoader = dataLoaderRegistry.getDataLoader("authors");
-            System.out.println("Batching request for " + authorId);
+            log.info("Batching request for " + authorId);
             return authorLoader.load(authorId);
         };
     }
@@ -558,10 +562,8 @@ public class GraphQLDataFetcher {
     public BatchLoader<Long, Author> authorBatchLoader() {
         return ids ->
                 CompletableFuture.supplyAsync(() -> {
-                    System.out.println("In author batch loader");
-                    return authorService
-                            .findByIds(ids.stream().
-                                    collect(Collectors.toList()));
+                    return authorServiceEclipseLink
+                            .findByIds(new ArrayList<>(ids));
                 });
     }
 
@@ -643,8 +645,8 @@ public class GraphQLDataFetcher {
 
     public DataFetcher getAllItemsDataFetcher() {
         return dataFetchingEnvironment -> {
-            List<Book> books = bookService.findAll();
-            List<Author> authors = authorService.findAll();
+            List<Book> books = bookServiceEclipseLink.findAll();
+            List<Author> authors = authorServiceEclipseLink.findAll();
             List<Object> items = new ArrayList<>();
             for (Object o: books)
                 items.add(o);
@@ -660,8 +662,8 @@ public class GraphQLDataFetcher {
     public DataFetcher getItemDataFetcher() {
         return dataFetchingEnvironment -> {
             Long id = Long.parseLong(dataFetchingEnvironment.getArgument("id"));
-            Book book = bookService.findById(id);
-            Author author = authorService.findById(id);
+            Map<String, Object> book = bookServiceEclipseLink.findById(id);
+            Map<String, Object> author = authorServiceEclipseLink.findById(id);
             List<Object> result = new ArrayList<>();
             result.add(book); result.add(author);
             return result;
@@ -677,7 +679,7 @@ public class GraphQLDataFetcher {
     }
 
     public GraphQLCodeRegistry.Builder generateAuthorFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
-        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Book", "author"), this.getAuthorDataFetcherWithDataLoader());
+        //codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Book", "author"), this.getAuthorDataFetcherWithDataLoader());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Book", "countryOfOrigin"), this.getCountryDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Book", "publisher"), this.getPublisherDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Book", "contact"), this.getContactDataFetcher());

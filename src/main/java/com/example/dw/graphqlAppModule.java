@@ -4,6 +4,9 @@ import com.example.dw.config.Config;
 import com.example.dw.dao.Dao;
 import com.example.dw.dao.DaoImpl;
 import com.example.dw.datafetchers.GraphQLDataFetcher;
+import com.example.dw.eclipselink.service.AuthorServiceEclipseLink;
+import com.example.dw.eclipselink.service.BookServiceEclipseLink;
+import com.example.dw.eclipselink.utils.EntityManagerFactoryUtil;
 import com.example.dw.provider.GraphQLProvider;
 import com.example.dw.service.BookService;
 import com.example.dw.service.AuthorService;
@@ -28,6 +31,9 @@ public class graphqlAppModule extends AbstractModule {
         bind(Dao.class).to(DaoImpl.class).in(Singleton.class);
         bind(BookService.class).in(Singleton.class);
         bind(AuthorService.class).in(Singleton.class);
+        bind(EntityManagerFactoryUtil.class).in(Singleton.class);
+        bind(BookServiceEclipseLink.class).in(Singleton.class);
+        bind(AuthorServiceEclipseLink.class).in(Singleton.class);
         bind(GraphQLDataFetcher.class).in(Singleton.class);
         bind(GraphQLProvider.class).in(Singleton.class);
     }

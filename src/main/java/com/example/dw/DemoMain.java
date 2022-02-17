@@ -16,6 +16,7 @@ public class DemoMain {
             nativeQuery(em, "SHOW TABLES");
             nativeQuery(em, "SHOW COLUMNS from Author");
             nativeQuery(em, "SHOW COLUMNS from Book");
+            nativeQuery(em, "SELECT * FROM Book b INNER JOIN Author a ON b.AUTH_id = a.id");
         } finally {
             emf.close();
         }
