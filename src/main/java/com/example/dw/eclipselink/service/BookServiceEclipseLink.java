@@ -147,9 +147,11 @@ public class BookServiceEclipseLink {
         entityClass.add(modelEntity1);
         entityClass.add(modelEntity2);
 
-        CriteriaQuery cq = cb.createQuery(entityClass.get(0));
-        Root root = cq.from(entityClass.get(0));
-        root.fetch("Book", JoinType.LEFT);
+        CriteriaQuery cq = cb.createQuery(entityClass.get(1));
+        Root root = cq.from(entityClass.get(1));
+
+        //For fetch to work there should be mapping added . Hence cannot query author from book . Write custom Many-to-one mapping
+        root.fetch(entityClass.get(0).getName(), JoinType.LEFT);
 
         TypedQuery q = entityManager.createQuery(cq);
         List resultList = q.getResultList();

@@ -56,9 +56,10 @@ public class EntityManagerFactoryUtil {
         JPADynamicTypeBuilder author = new JPADynamicTypeBuilder(authorClass, null, "Author");
         author.setPrimaryKeyFields("ID");
         author.addDirectMapping("id", int.class, "ID");
-        author.addDirectMapping("title", String.class, "TITLE");
+       // author.addDirectMapping("title", String.class, "TITLE");
         author.addDirectMapping("age", int.class, "AGE");
-        author.addOneToManyMapping("book", book.getType(), "authorId");
+        // the name should be dynamic class Name
+        author.addOneToManyMapping("com.example.dw.entity.NewBook", book.getType(), "authorId");
 
         jpaDynamicHelper.addTypes(false, false, book.getType());
         jpaDynamicHelper.addTypes(false, false, author.getType());
