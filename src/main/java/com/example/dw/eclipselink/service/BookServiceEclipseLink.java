@@ -159,12 +159,12 @@ public class BookServiceEclipseLink {
         for (DynamicEntity entity : res) {
             log.info(entity.get("id").toString());
             log.info(entity.get("title"));
-            log.info(entity.get("description"));
-            DynamicEntity lap = entity.get("author");
+            log.info(entity.get("age"));
+            DynamicEntity lap = entity.get("book");
             if( null != lap) {
                 log.info(lap.get("id"));
                 log.info(lap.get("title").toString());
-                log.info(lap.get("age").toString());
+                log.info(lap.get("price").toString());
             }
         }
         return null;

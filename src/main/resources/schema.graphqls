@@ -1,4 +1,5 @@
 type Query {
+    authors: [Author]
     books: [Book]
     book(id: ID): Book
     booksWithFilter(filters: BookFilter, pagination: Pagination): [Book]

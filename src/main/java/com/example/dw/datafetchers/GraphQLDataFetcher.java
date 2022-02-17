@@ -464,6 +464,12 @@ public class GraphQLDataFetcher {
         return dataFetchingEnvironment -> bookServiceEclipseLink.findAllEntries();
     }
 
+    public DataFetcher getAllAuthorsDataFetcher() {
+        //return dataFetchingEnvironment -> bookServiceEclipseLink.findAll();
+        //return dataFetchingEnvironment -> bookServiceEclipseLink.findAllRecords();
+        //return dataFetchingEnvironment -> bookServiceEclipseLink.findAllRecords();
+        return dataFetchingEnvironment -> authorServiceEclipseLink.findAllEntries();
+    }
     /*
     public DataFetcher getBooksByFilterDataFetcher() {
         return dataFetchingEnvironment -> {
@@ -672,6 +678,7 @@ public class GraphQLDataFetcher {
 
     public GraphQLCodeRegistry.Builder generateBookFetchers(GraphQLCodeRegistry.Builder codeRegistryBuilder) {
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "books"), this.getAllBooksDataFetcher());
+        codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "authors"), this.getAllAuthorsDataFetcher());
         codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "book"), this.getBookByIdDataFetcher());
         //codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksWithFilter"), this.getBooksByFilterDataFetcher());
         //codeRegistryBuilder = codeRegistryBuilder.dataFetcher(FieldCoordinates.coordinates("Query", "booksAggregator"), this.booksAggregator());
